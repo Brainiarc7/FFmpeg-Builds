@@ -2,7 +2,6 @@
 
 SCRIPT_REPO="https://github.com/EncovGroup/DecklinkSDK.git"
 SCRIPT_COMMIT="61a2fff5e54720a2acdae4afbf78818cf7cbd269"
-#SCRIPT_COMMIT_TAG="61a2fff5e54720a2acdae4afbf78818cf7cbd269"
 
 ffbuild_enabled() {
     [[ $VARIANT == nonfree* ]] || return -1
