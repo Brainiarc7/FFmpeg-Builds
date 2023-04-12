@@ -22,6 +22,7 @@ on:
 
 env:
   DOCKER_BUILDKIT: 1
+  HAVE_CLEANUP_PAT: ${{ secrets.CLEANUP_PAT != '' }}
 
 jobs:
   build_base:
@@ -43,7 +44,10 @@ jobs:
           password: ${{ github.token }}
       - name: Image Name
         id: imagename
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}/base" >> $GITHUB_OUTPUT
+        run: |
+          IMG="${GITHUB_REPOSITORY,,}/base"
+          echo "name=ghcr.io/${IMG/ /-}" >> $GITHUB_OUTPUT
+          echo "rawname=${IMG/ /-}" >> $GITHUB_OUTPUT
       - name: Stop Commands
         run: T="$(echo -n ${{ github.token }} | sha256sum | head -c 64)" && echo -e "::add-mask::${T}\n::stop-commands::${T}"
       - name: Build target base image
@@ -55,6 +59,17 @@ jobs:
           tags: ${{ steps.imagename.outputs.name }}:latest
           cache-to: type=registry,mode=max,ref=${{ steps.imagename.outputs.name }}:cache
           cache-from: type=registry,ref=${{ steps.imagename.outputs.name }}:cache
+      - name: Cleanup
+        if: ${{ env.HAVE_CLEANUP_PAT == 'true' }}
+        continue-on-error: true
+        uses: BtbN/delete-untagged-ghcr-action@main
+        with:
+          token: ${{ secrets.CLEANUP_PAT }}
+          package_name: ${{ steps.imagename.outputs.rawname }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          owner_type: user
+          untagged_only: true
   build_target_bases:
     name: Build target base image
     if: ${{ github.event.inputs.buildOnly != 'true' }}
@@ -79,7 +94,10 @@ jobs:
           password: ${{ github.token }}
       - name: Image Name
         id: imagename
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}/base-${{ matrix.target }}" >> $GITHUB_OUTPUT
+        run: |
+          IMG="${GITHUB_REPOSITORY,,}/base-${{ matrix.target }}"
+          echo "name=ghcr.io/${IMG/ /-}" >> $GITHUB_OUTPUT
+          echo "rawname=${IMG/ /-}" >> $GITHUB_OUTPUT
       - name: Stop Commands
         run: T="$(echo -n ${{ github.token }} | sha256sum | head -c 64)" && echo -e "::add-mask::${T}\n::stop-commands::${T}"
       - name: Build target base image
@@ -91,6 +109,17 @@ jobs:
           tags: ${{ steps.imagename.outputs.name }}:latest
           cache-to: type=registry,mode=max,ref=${{ steps.imagename.outputs.name }}:cache
           cache-from: type=registry,ref=${{ steps.imagename.outputs.name }}:cache
+      - name: Cleanup
+        if: ${{ env.HAVE_CLEANUP_PAT == 'true' }}
+        continue-on-error: true
+        uses: BtbN/delete-untagged-ghcr-action@main
+        with:
+          token: ${{ secrets.CLEANUP_PAT }}
+          package_name: ${{ steps.imagename.outputs.rawname }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          owner_type: user
+          untagged_only: true
   build_targets:
     name: Build target-variant image
     if: ${{ github.event.inputs.buildOnly != 'true' }}
@@ -100,7 +129,7 @@ jobs:
       fail-fast: false
       matrix:
         target: [win64,linux64,linuxarm64]
-        variant: [gpl,lgpl,gpl 4.4,gpl 5.1,lgpl 4.4,lgpl 5.1,gpl-shared,lgpl-shared,gpl-shared 4.4,gpl-shared 5.1,lgpl-shared 4.4,lgpl-shared 5.1]
+        variant: [gpl,lgpl,gpl 4.4,gpl 5.1,gpl 6.0,lgpl 4.4,lgpl 5.1,lgpl 6.0,gpl-shared,lgpl-shared,gpl-shared 4.4,gpl-shared 5.1,gpl-shared 6.0,lgpl-shared 4.4,lgpl-shared 5.1,lgpl-shared 6.0]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -119,8 +148,9 @@ jobs:
       - name: Image Name
         id: imagename
         run: |
-          IMG="ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.target }}-${{ matrix.variant }}"
-          echo "name=${IMG/ /-}" >> $GITHUB_OUTPUT
+          IMG="${GITHUB_REPOSITORY,,}/${{ matrix.target }}-${{ matrix.variant }}"
+          echo "name=ghcr.io/${IMG/ /-}" >> $GITHUB_OUTPUT
+          echo "rawname=${IMG/ /-}" >> $GITHUB_OUTPUT
           echo "gh_repo=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
       - name: Stop Commands
         run: T="$(echo -n ${{ github.token }} | sha256sum | head -c 64)" && echo -e "::add-mask::${T}\n::stop-commands::${T}"
@@ -135,6 +165,17 @@ jobs:
           cache-from: type=registry,ref=${{ steps.imagename.outputs.name }}:cache
           build-args: |
             GH_REPO=ghcr.io/${{ steps.imagename.outputs.gh_repo }}
+      - name: Cleanup
+        if: ${{ env.HAVE_CLEANUP_PAT == 'true' }}
+        continue-on-error: true
+        uses: BtbN/delete-untagged-ghcr-action@main
+        with:
+          token: ${{ secrets.CLEANUP_PAT }}
+          package_name: ${{ steps.imagename.outputs.rawname }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          owner_type: user
+          untagged_only: true
   build_ffmpeg:
     name: Build ffmpeg
     if: ${{ ( github.event.inputs.buildOnly == 'true' && !cancelled() ) || success() }}
@@ -144,7 +185,7 @@ jobs:
       fail-fast: false
       matrix:
         target: [win64,linux64,linuxarm64]
-        variant: [gpl,lgpl,gpl 4.4,gpl 5.1,lgpl 4.4,lgpl 5.1,gpl-shared,lgpl-shared,gpl-shared 4.4,gpl-shared 5.1,lgpl-shared 4.4,lgpl-shared 5.1]
+        variant: [gpl,lgpl,gpl 4.4,gpl 5.1,gpl 6.0,lgpl 4.4,lgpl 5.1,lgpl 6.0,gpl-shared,lgpl-shared,gpl-shared 4.4,gpl-shared 5.1,gpl-shared 6.0,lgpl-shared 4.4,lgpl-shared 5.1,lgpl-shared 6.0]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -199,7 +240,7 @@ jobs:
           TAGNAME="latest"
           hub release delete "$TAGNAME" || true
           git push --delete origin "$TAGNAME" || true
-          sleep 5
+          sleep 15
           hub release create $(for a in latest_artifacts/*; do echo -a $a; done) -m "$NAME" -t "master" "$TAGNAME"
         env:
           GITHUB_TOKEN: ${{ github.token }}
