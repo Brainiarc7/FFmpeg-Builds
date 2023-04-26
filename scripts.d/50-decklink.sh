@@ -14,7 +14,7 @@ ffbuild_dockerbuild() {
     cd decklink
 
     mkdir -p "$FFBUILD_PREFIX"/include
-    mv decklink/Linux/include/* "$FFBUILD_PREFIX"/include/
+    mv Linux/include/* "$FFBUILD_PREFIX"/include/
 }
 
 ffbuild_configure() {
