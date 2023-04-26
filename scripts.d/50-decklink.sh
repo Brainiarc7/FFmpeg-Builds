@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_REPO="https://github.com/EncovGroup/DecklinkSDK.git"
-SCRIPT_COMMIT="61a2fff5e54720a2acdae4afbf78818cf7cbd269"
+SCRIPT_REPO="https://github.com/Brainiarc7/blackmagic-sdk.git"
+SCRIPT_COMMIT="5a93d2f3f3ff87bf690e689e165aaba8ee4812b5"
 
 ffbuild_enabled() {
     [[ $VARIANT == nonfree* ]] || return -1
