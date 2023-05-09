@@ -72,7 +72,7 @@ cat <<EOF >"$BUILD_SCRIPT"
 
     for patch in '/patches/$GIT_BRANCH'/*.patch; do
         echo "Applying \$patch"
-        git apply --reject --whitespace=fix "\$patch"
+        git apply --reject --whitespace=fix --ignore-space-change --ignore-whitespace "\$patch"
     done
 
     ./configure --prefix=/ffbuild/prefix --pkg-config-flags="--static" \$FFBUILD_TARGET_FLAGS $FF_CONFIGURE \
