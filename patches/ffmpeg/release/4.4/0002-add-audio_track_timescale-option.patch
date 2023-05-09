@@ -25,6 +25,9 @@ index 5ffb7619ec..8925475b19 100644
              }
          } else if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 -            track->timescale = st->codecpar->sample_rate;
+-            if (!st->codecpar->frame_size && !av_get_bits_per_sample(st->codecpar->codec_id)) {
+-               av_log(s, AV_LOG_WARNING, "track %d: codec frame size is not set\n", i);
+-                track->audio_vbr = 1;
 +            if (mov->audio_track_timescale) {
 +                track->timescale = mov->audio_track_timescale;
 +                if (mov->mode == MODE_ISM && mov->audio_track_timescale != 10000000)
