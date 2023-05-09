@@ -20,8 +20,8 @@ index 5ffb7619ec..8925475b19 100644
      { "brand",    "Override major brand", offsetof(MOVMuxContext, major_brand),   AV_OPT_TYPE_STRING, {.str = NULL}, .flags = AV_OPT_FLAG_ENCODING_PARAM },
      { "use_editlist", "use edit list", offsetof(MOVMuxContext, use_editlist), AV_OPT_TYPE_BOOL, {.i64 = -1}, -1, 1, AV_OPT_FLAG_ENCODING_PARAM},
      { "fragment_index", "Fragment number of the next fragment", offsetof(MOVMuxContext, fragments), AV_OPT_TYPE_INT, {.i64 = 1}, 1, INT_MAX, AV_OPT_FLAG_ENCODING_PARAM},
-@@ -6606,7 +6607,13 @@ static int mov_init(AVFormatContext *s)
-             }
+@@ -6606,7 +6607,13 @@ static int mov_init(AVFormatContext *s)           
+                }
          } else if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 -            track->timescale = st->codecpar->sample_rate;
 +            if (mov->audio_track_timescale) {
