@@ -46,7 +46,7 @@ ffbuild_dockerbuild() {
 }
 
 ffbuild_configure() {
-    echo --disable-libjxl
+    echo --enable-libjxl
 }
 
 ffbuild_unconfigure() {
