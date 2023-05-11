@@ -4,7 +4,7 @@ SCRIPT_REPO="https://github.com/stoth68000/libklvanc.git"
 SCRIPT_COMMIT="87d952517a1db2030b100bf05ed6112e6ff56795"
 
 ffbuild_enabled() {
-    [[ $VARIANT == nonfree* ]] || return -1
+    [[ $VARIANT == lgpl* ]] || return -1
     [[ $TARGET != linux* ]] && return -1
     [[ $TARGET == linuxarm64 ]] && return -1
     return 0
