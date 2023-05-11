@@ -1,0 +1,209 @@
+From patchwork Sun Sep 26 16:43:40 2021
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+X-Patchwork-Id: 30593
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a6b:6506:0:0:0:0:0 with SMTP id z6csp3409883iob;
+        Sun, 26 Sep 2021 09:43:59 -0700 (PDT)
+X-Google-Smtp-Source: 
+ ABdhPJyWOGlPnLToTuursGmCDVW0IdqIAih2rCyxBWpjoYy4mns4UflASuUyLZb6qZj2Mt6zQofO
+X-Received: by 2002:a50:d98d:: with SMTP id w13mr18530345edj.51.1632674638834;
+        Sun, 26 Sep 2021 09:43:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1632674638; cv=none;
+        d=google.com; s=arc-20160816;
+        b=so9m6ivMSn5E5ciDxB0F261+bEnOcre1VsxwN+8cKskfCCqtzBpzc1eLUwc6y3MSmW
+         pupRW+AiO9Hn11x+QNP6roSFsnsvoIlnOJ8MSHBvFR/mIwhgyqDcAl+zjk2jtBW4XgrF
+         tIh58uVu9EQoOEbPgHoIFLkMCKQlHlC8n1Cz5KnrOSh3AcVbCDGbbdjpBEP3ctpK6See
+         gH7Y2UMmS19nTskZQ08MpUGNbLxReuESqv+4O7/pIRAcq4V6TJpM+qsAZ/8NDwsLIVE0
+         lUrzJZ+6cRfoBx1RW8PE5v0Gvc5j2DGclDc6cBS61GO+rX1ikqGj4NxDQgcdWr9MotJS
+         TcXg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:message-id:date:to:from
+         :dkim-signature:delivered-to;
+        bh=KzDwVgkhSBUBgX59e2diTrZxeDuKQmCxtCQM8jH3SUs=;
+        b=KRpeNBjkA2xAaS3x4vgy4Ewk2l1r+g4CLXrOlrBJVBo2FXu1Es72jirKollYsferhx
+         Aophvz19p4+WBadxZl2fbtgBTxtyB5WczK/saITpxc5zYxvpgyogheMNmhM9iCa5iSaO
+         0L5LdVVVeTY9+mSAYknFne86p3RTxXaJLk7xrg3u+deysjwwu2+5r26OLwNlnECpSwma
+         n/a2Ow1s975cvdzvknUK4ozUtSbBcrvQaHoN/OSfGgRvnS/Lu5x86vAnPt505C8Xsjqu
+         sxG42AeT6P7zEsczcwCQ7pQiK7gBQuT0cfpsAesWNrLqBVm+91DSGGUyc3Sb5GcwO9SY
+         rvbQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=HGBlcM4E;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ h4si11998133edq.541.2021.09.26.09.43.58;
+        Sun, 26 Sep 2021 09:43:58 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=HGBlcM4E;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 5AD3368A9CE;
+	Sun, 26 Sep 2021 19:43:54 +0300 (EEST)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com
+ [209.85.167.49])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 7F46D68A93D
+ for <ffmpeg-devel@ffmpeg.org>; Sun, 26 Sep 2021 19:43:47 +0300 (EEST)
+Received: by mail-lf1-f49.google.com with SMTP id i4so65656094lfv.4
+ for <ffmpeg-devel@ffmpeg.org>; Sun, 26 Sep 2021 09:43:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=52NgcLRHvcDvxYd1GHpQ/aCsp6onro9rTbxLvwznmBo=;
+ b=HGBlcM4Efvg1DjMA8L94vPy4xkPO7hYTErLKUyCejYCytlxnpNGio0Ovq1qZTdPznV
+ BWIzdY0S0oLpnaJG1Y7AkbBILSiQLBuMazOLdIHx5BoMfZrULc2BPOTLL/KNixqIpKkp
+ kUyEoPoiZi7UrtryKGn93Ezgxdqb4LeenSw3M1wS2fz84SQJSyHOXAio6da99kC5GJcQ
+ UVWB72/E6fWUwKFlVQj5DeqC6t5WEyMSDYzSJAPV5Ua10e5BK63gClUY2fNIYxB7lRDO
+ c9CVpJJODVXBq0NZpqK1+R2UlSxwlhQY+oaMckMfK2dJmgx8QtV9U1CihCQAO+poaJtr
+ Obpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=52NgcLRHvcDvxYd1GHpQ/aCsp6onro9rTbxLvwznmBo=;
+ b=n5UYmEwMNFaXG+4E2YFXnx9097pAXI1l0XdEEUqo/ybghM2xO+4dHd7Yy6sDMpRR6J
+ Q95zzPDdVWBH2csOi0dnjpGRaW9qgefF0dxwEMFnibX9nd2YUP6+XPVPYOTZ1RnGRv47
+ hDiRwD3lyvB2xQSMXlHAuQZdpfYah1qwm5TUgBmIbZOBJBi6Q3kFPSn/zlVtdvovHJT3
+ EAUEfNjbixmgEfvlR9ei9HlVtrJoFVOhUwYwhsUdkNbPoWzF/7jdKamkn3WCyf4Co2P9
+ +hJGytxoeuzTmqme+cIUg+t0ptaxtrfegL7NVHymGqZ+e/C/lA7+y6uvKKck7HwSqYmT
+ XfVw==
+X-Gm-Message-State: AOAM530IYQ2Q0Oib96tPINSJzrPJR1OIP9yx4nMfE5HoCJJTtzrdr3cW
+ jRjdfTlxVfFs0uxbeFFCCoeRZxSYmyM=
+X-Received: by 2002:a05:651c:1795:: with SMTP id
+ bn21mr24457991ljb.525.1632674626654;
+ Sun, 26 Sep 2021 09:43:46 -0700 (PDT)
+Received: from localhost.localdomain (91-159-194-103.elisa-laajakaista.fi.
+ [91.159.194.103])
+ by smtp.gmail.com with ESMTPSA id y10sm1333852ljj.40.2021.09.26.09.43.45
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 26 Sep 2021 09:43:46 -0700 (PDT)
+From: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Sun, 26 Sep 2021 19:43:40 +0300
+Message-Id: <20210926164340.20144-1-jeebjp@gmail.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH] avformat/isom: enable TTML demuxing from
+ MP4-likes
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: zBkXz+4528nG
+
+As ff_codec_movsubtitle_tags is shared between demuxing and muxing,
+the muxing parts have to go in before demuxing in order to not
+generate invalid media, as adding an identifier to this list enables
+muxing into QTFF/MOV.
+---
+ libavformat/isom.c               |  2 ++
+ tests/ref/fate/mov-mp4-ttml-dfxp | 10 ++++++----
+ tests/ref/fate/mov-mp4-ttml-stpp | 10 ++++++----
+ 3 files changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/libavformat/isom.c b/libavformat/isom.c
+index 4df5440023..852d237481 100644
+--- a/libavformat/isom.c
++++ b/libavformat/isom.c
+@@ -77,6 +77,8 @@ const AVCodecTag ff_codec_movsubtitle_tags[] = {
+     { AV_CODEC_ID_MOV_TEXT, MKTAG('t', 'e', 'x', 't') },
+     { AV_CODEC_ID_MOV_TEXT, MKTAG('t', 'x', '3', 'g') },
+     { AV_CODEC_ID_EIA_608,  MKTAG('c', '6', '0', '8') },
++    { AV_CODEC_ID_TTML,     MOV_MP4_TTML_TAG          },
++    { AV_CODEC_ID_TTML,     MOV_ISMV_TTML_TAG         },
+     { AV_CODEC_ID_NONE, 0 },
+ };
+ 
+diff --git a/tests/ref/fate/mov-mp4-ttml-dfxp b/tests/ref/fate/mov-mp4-ttml-dfxp
+index e24b5d618b..531d6856ec 100644
+--- a/tests/ref/fate/mov-mp4-ttml-dfxp
++++ b/tests/ref/fate/mov-mp4-ttml-dfxp
+@@ -1,13 +1,14 @@
+ 2e7e01c821c111466e7a2844826b7f6d *tests/data/fate/mov-mp4-ttml-dfxp.mp4
+ 8519 tests/data/fate/mov-mp4-ttml-dfxp.mp4
++#extradata 0:       20, 0x1dfc0302
+ #tb 0: 1/1000
+-#media_type 0: data
+-#codec_id 0: none
++#media_type 0: subtitle
++#codec_id 0: ttml
+ 0,          0,          0,    68500,     7866, 0x456c36b7
+ {
+     "packets": [
+         {
+-            "codec_type": "data",
++            "codec_type": "subtitle",
+             "stream_index": 0,
+             "pts": 0,
+             "pts_time": "0.000000",
+@@ -26,7 +27,8 @@
+     "streams": [
+         {
+             "index": 0,
+-            "codec_type": "data",
++            "codec_name": "ttml",
++            "codec_type": "subtitle",
+             "codec_tag_string": "dfxp",
+             "codec_tag": "0x70786664",
+             "time_base": "1/1000",
+diff --git a/tests/ref/fate/mov-mp4-ttml-stpp b/tests/ref/fate/mov-mp4-ttml-stpp
+index 77bd23b7bf..7c03ef92cc 100644
+--- a/tests/ref/fate/mov-mp4-ttml-stpp
++++ b/tests/ref/fate/mov-mp4-ttml-stpp
+@@ -1,13 +1,14 @@
+ cbd2c7ff864a663b0d893deac5a0caec *tests/data/fate/mov-mp4-ttml-stpp.mp4
+ 8547 tests/data/fate/mov-mp4-ttml-stpp.mp4
++#extradata 0:       48, 0x62100c0d
+ #tb 0: 1/1000
+-#media_type 0: data
+-#codec_id 0: none
++#media_type 0: subtitle
++#codec_id 0: ttml
+ 0,          0,          0,    68500,     7866, 0x456c36b7
+ {
+     "packets": [
+         {
+-            "codec_type": "data",
++            "codec_type": "subtitle",
+             "stream_index": 0,
+             "pts": 0,
+             "pts_time": "0.000000",
+@@ -26,7 +27,8 @@ cbd2c7ff864a663b0d893deac5a0caec *tests/data/fate/mov-mp4-ttml-stpp.mp4
+     "streams": [
+         {
+             "index": 0,
+-            "codec_type": "data",
++            "codec_name": "ttml",
++            "codec_type": "subtitle",
+             "codec_tag_string": "stpp",
+             "codec_tag": "0x70707473",
+             "time_base": "1/1000",

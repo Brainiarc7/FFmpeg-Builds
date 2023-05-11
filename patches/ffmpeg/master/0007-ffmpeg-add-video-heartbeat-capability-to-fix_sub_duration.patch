@@ -1,0 +1,915 @@
+From patchwork Fri Jan 27 14:29:29 2023
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Patchwork-Submitter: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+X-Patchwork-Id: 40144
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a05:6a20:3ca3:b0:b9:1511:ac2c with SMTP id b35csp1391799pzj;
+        Fri, 27 Jan 2023 06:29:59 -0800 (PST)
+X-Google-Smtp-Source: 
+ AMrXdXuN4MIjVLszVTjMz5WJZKh6dh5GinW7XwoEvB7IPCcnBW432eJoQsQVzqYkPCIX2l8oODXT
+X-Received: by 2002:a05:6402:194c:b0:498:b9ea:1896 with SMTP id
+ f12-20020a056402194c00b00498b9ea1896mr47919639edz.9.1674829799537;
+        Fri, 27 Jan 2023 06:29:59 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1674829799; cv=none;
+        d=google.com; s=arc-20160816;
+        b=brbsBg248gtM7x5oe5Sn6kkjxoaXxD89dANXPpWVQLpeM3Y9ELAOzM9kaZhjIOCulo
+         d8TRV9tE+L2VYVI+WjQMmvS/CHR6UDeE1dZIBSBcYOAGWrLExikFTQ+44mzdOUywTo57
+         T4brQp7q24jTNadfuMfB17ltaVlTO1LvBc4fOjiGFkpvEtGJ66RPFroLJwGNzu/864FB
+         LCaWrY7mzdZUqFdPK7IN9D0sdUycLhXvYLm6uvROpb6jKS6feNpv4dfVj4yJM8jTLO7S
+         anVyGGKmh3xlkmQ4/Pra45VAPcwGOVwHhYrL2kXM6cj598Ca33a4g38wc2qKLRB+okin
+         4/lg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:references:in-reply-to:message-id
+         :date:to:from:dkim-signature:delivered-to;
+        bh=yz6Q+iSiACCSF5BWRmlmIIoUelJU2wzvVy8ECgmWRd4=;
+        b=G101Pz5xyricPF583v0NCpyolGnLcNqNjFKv63lRIozdLBOPln/KqMdoyXteV3gz1Q
+         1z1QqdSo7py3eb9hb8kC8oRp7ocRXDoTt0gP4NPoQ3WtyTdPYqCBWAyNnt2UmhmwFEu+
+         fKSrTTWohQhRGP4HebPMMipbpNEpb5iIMW0nRNOsWyYQqbTbR97EZnyLVWxF8kixECJi
+         n9HyRqckcaiqZvbEdUKkxAmcvyNFl2h+qQpb9m5r3+djYhdYY2mh+guUoZh2HF0XMpoV
+         2mHKCpmkf/mhoaUrE+9g8MSkPEus1CNdEZKxK/fndF0O+9p3yDyh+VwI1VZDaM8J8xAy
+         71rA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=kGhime2X;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ j18-20020a170906535200b00877da25cb20si5448574ejo.966.2023.01.27.06.29.59;
+        Fri, 27 Jan 2023 06:29:59 -0800 (PST)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=kGhime2X;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id A7EF568BE2B;
+	Fri, 27 Jan 2023 16:29:48 +0200 (EET)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com
+ [209.85.218.54])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 0351868BB4C
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 27 Jan 2023 16:29:41 +0200 (EET)
+Received: by mail-ej1-f54.google.com with SMTP id k4so8706082eje.1
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 27 Jan 2023 06:29:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+ :reply-to; bh=TXcbWEAMm9uaLrKDs6a9snzoL6eSCt4fZTPwVBPPURk=;
+ b=kGhime2X1CWvj3gTq9AGhhSe8lUIky804lM9170CY2U/qxd3dF7OA8TbYoNq22BrVI
+ GBDbBceVFsTfZeJAzUCAEk8L+HEEOVy9zQw/4KUpz4ad7ql/xaqGIUA0tJciDey+4Zqx
+ z75WIxKG2cT0wALzhniM6lNNOevDPBxYdnQlHOQ8VLKeV8J72AEbNz0DMIrDZf0Y8bdq
+ BQ4UL6cpeOzYA8wvK3Gz0ooqTA+saXdF0u3/B4RyiKB+fWwOZokxIE8sstBDgzi7/xLM
+ RfXIG+LPlQ2H0cfqcdXoxe3W5ya5FmQtM9tzSiPqNwggo0KN8uI6lky71H7crkNnpj0x
+ yj8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=TXcbWEAMm9uaLrKDs6a9snzoL6eSCt4fZTPwVBPPURk=;
+ b=WL89BohLUnQguDCnRaM+mPr2xbDIw32KD98GkzfWAvQzIVP3FxVGvdyLuDyycUt++a
+ D1ISMP5EhWxfAvcMJhMDODfSbYGvA0zLJdb5DbQ6IAoc+maEiYGQfFR6BUUlvYHkqBq1
+ jZ35rPFRlLNFt3O6EbDZWuOZdd0fismx6m9Z+OhX/PoXHeVDeY7Px+9WZhApT2niT4V6
+ xNGtvW6kCFucSfcBFePNi0OwFv74VNJWBA1Cm3MfjRxEo7qzh/ObkEegKxwBCWakkH5Z
+ aw0US3aQQaQiRKJM/02qVRAlxVMRJ9y9bA9oU1kkJwDyoCAieWyg50PQTAanZYtl49ma
+ l7rw==
+X-Gm-Message-State: AFqh2kp9N7N+hn0cd8o6hAqZavnyOCA8/+IdJ1TP3WFxALjOFep03FDq
+ 2QzQbHWzlfDoVOz33smHU7YyUyd7EkI=
+X-Received: by 2002:a17:907:2c65:b0:873:971:4dd with SMTP id
+ ib5-20020a1709072c6500b00873097104ddmr43466494ejc.44.1674829780460;
+ Fri, 27 Jan 2023 06:29:40 -0800 (PST)
+Received: from localhost.localdomain (91-153-198-187.elisa-laajakaista.fi.
+ [91.153.198.187]) by smtp.gmail.com with ESMTPSA id
+ cm20-20020a170907939400b00871cb1b8f63sm2326387ejc.26.2023.01.27.06.29.39
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 27 Jan 2023 06:29:39 -0800 (PST)
+From: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Fri, 27 Jan 2023 16:29:29 +0200
+Message-Id: <20230127142931.35061-2-jeebjp@gmail.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230127142931.35061-1-jeebjp@gmail.com>
+References: <20230127142931.35061-1-jeebjp@gmail.com>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v7 1/3] ffmpeg: refactor post-decoding steps
+ for subtitles into a function
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: qdQ1DZeN6OV7
+
+From: Jan Ekström <jan.ekstrom@24i.com>
+
+This enables us to later call this when generating additional
+subtitles for splitting purposes.
+
+Co-authored-by: Andrzej Nadachowski <andrzej.nadachowski@24i.com>
+
+Signed-off-by: Jan Ekström <jan.ekstrom@24i.com>
+---
+ fftools/ffmpeg.c | 49 +++++++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 21 deletions(-)
+
+diff --git a/fftools/ffmpeg.c b/fftools/ffmpeg.c
+index f722ae7632..1a062f3863 100644
+--- a/fftools/ffmpeg.c
++++ b/fftools/ffmpeg.c
+@@ -2199,27 +2199,15 @@ fail:
+     return err < 0 ? err : ret;
+ }
+ 
+-static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
+-                               int *decode_failed)
++static int process_subtitle(InputStream *ist, AVSubtitle *subtitle, int *got_output)
+ {
+-    AVSubtitle subtitle;
++    int ret = 0;
+     int free_sub = 1;
+-    int ret = avcodec_decode_subtitle2(ist->dec_ctx,
+-                                       &subtitle, got_output, pkt);
+-
+-    check_decode_result(NULL, got_output, ret);
+-
+-    if (ret < 0 || !*got_output) {
+-        *decode_failed = 1;
+-        if (!pkt->size)
+-            sub2video_flush(ist);
+-        return ret;
+-    }
+ 
+     if (ist->fix_sub_duration) {
+         int end = 1;
+         if (ist->prev_sub.got_output) {
+-            end = av_rescale(subtitle.pts - ist->prev_sub.subtitle.pts,
++            end = av_rescale(subtitle->pts - ist->prev_sub.subtitle.pts,
+                              1000, AV_TIME_BASE);
+             if (end < ist->prev_sub.subtitle.end_display_time) {
+                 av_log(NULL, AV_LOG_DEBUG,
+@@ -2231,7 +2219,7 @@ static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
+         }
+         FFSWAP(int,        *got_output, ist->prev_sub.got_output);
+         FFSWAP(int,        ret,         ist->prev_sub.ret);
+-        FFSWAP(AVSubtitle, subtitle,    ist->prev_sub.subtitle);
++        FFSWAP(AVSubtitle, *subtitle,   ist->prev_sub.subtitle);
+         if (end <= 0)
+             goto out;
+     }
+@@ -2240,20 +2228,20 @@ static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
+         return ret;
+ 
+     if (ist->sub2video.frame) {
+-        sub2video_update(ist, INT64_MIN, &subtitle);
++        sub2video_update(ist, INT64_MIN, subtitle);
+     } else if (ist->nb_filters) {
+         if (!ist->sub2video.sub_queue)
+             ist->sub2video.sub_queue = av_fifo_alloc2(8, sizeof(AVSubtitle), AV_FIFO_FLAG_AUTO_GROW);
+         if (!ist->sub2video.sub_queue)
+             report_and_exit(AVERROR(ENOMEM));
+ 
+-        ret = av_fifo_write(ist->sub2video.sub_queue, &subtitle, 1);
++        ret = av_fifo_write(ist->sub2video.sub_queue, subtitle, 1);
+         if (ret < 0)
+             exit_program(1);
+         free_sub = 0;
+     }
+ 
+-    if (!subtitle.num_rects)
++    if (!subtitle->num_rects)
+         goto out;
+ 
+     ist->frames_decoded++;
+@@ -2263,15 +2251,34 @@ static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
+             || ost->enc_ctx->codec_type != AVMEDIA_TYPE_SUBTITLE)
+             continue;
+ 
+-        do_subtitle_out(output_files[ost->file_index], ost, &subtitle);
++        do_subtitle_out(output_files[ost->file_index], ost, subtitle);
+     }
+ 
+ out:
+     if (free_sub)
+-        avsubtitle_free(&subtitle);
++        avsubtitle_free(subtitle);
+     return ret;
+ }
+ 
++static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
++                               int *decode_failed)
++{
++    AVSubtitle subtitle;
++    int ret = avcodec_decode_subtitle2(ist->dec_ctx,
++                                       &subtitle, got_output, pkt);
++
++    check_decode_result(NULL, got_output, ret);
++
++    if (ret < 0 || !*got_output) {
++        *decode_failed = 1;
++        if (!pkt->size)
++            sub2video_flush(ist);
++        return ret;
++    }
++
++    return process_subtitle(ist, &subtitle, got_output);
++}
++
+ static int send_filter_eof(InputStream *ist)
+ {
+     int i, ret;
+
+From patchwork Fri Jan 27 14:29:30 2023
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Patchwork-Submitter: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+X-Patchwork-Id: 40145
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a05:6a20:3ca3:b0:b9:1511:ac2c with SMTP id b35csp1391906pzj;
+        Fri, 27 Jan 2023 06:30:08 -0800 (PST)
+X-Google-Smtp-Source: 
+ AK7set/Tm4ALzC6k+7rti94W3pphCsV0dKbNvVBq5uNhyvs1GKlJvr4/Y87mXx8BW8y3cThVKTDJ
+X-Received: by 2002:a05:6402:510d:b0:4a0:b601:4a74 with SMTP id
+ m13-20020a056402510d00b004a0b6014a74mr11949568edd.28.1674829808742;
+        Fri, 27 Jan 2023 06:30:08 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1674829808; cv=none;
+        d=google.com; s=arc-20160816;
+        b=1LVFLGiSZhZmWmJxki21/TfUZc/y8RvLlayZZQ+pX13SDjzKEFBTS1w7DNki3WNOze
+         ur/9P9BArd7sPeNv2+8IHBnW1ne/eOjLhV9twjw8a4vXimguFTgrHrgZiWidoQ6FWAca
+         O1FIlWxGWXBu/7KyRQ88l7UGxelmlshhhFJXaRW6S40bj0ynAG8+Vva0MN4xSfQJhVIX
+         L5GHbQn0aPQNPc/Ywh3WDCBtg8n4EHKl20L8BcjubMM4VwQU0J8R9vDkCHnwsRHvtnat
+         1DwdeOTC8sZtQ80fr77qJaNOqvUsAWqJHBh7sFJVJXglWyiBa72ILAspOw1Ls0yg0hUg
+         6Buw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:references:in-reply-to:message-id
+         :date:to:from:dkim-signature:delivered-to;
+        bh=VaSGvQJopkow+cx3EGMq9q/zLvaVmTt7sW+XL2oUCGo=;
+        b=I2SSOD341vKzPkkS1WkHFPnYL4f4yyTgdUBC2Bwlsu8jbg2LxpGyMRuQoQn9JDhuFD
+         JpFug6/yX4zU3c62O8WZojmWa5NeHUHO01F7+8LGGShXxtzDhW6eno/GbMqLS1072Wt2
+         B5Zu4DiAHOQcaYeaFQKXc4DBdXrv6fmUbDwoku0DuH6k5yYsRAxisopXYEnFvz/yIThM
+         WqVwDTIE4RD2jfgDLWpeNTYVd+hTmLZ486VZeQhZd+7LoVdxwn6nEK/w6y77JcRt2Hir
+         Z3xemrHY4ITIv2MwC5s91agCHCJO+zd9zOLnWcmJ00H2823grZuaGzzLJC/rsLa39Qt8
+         QYbQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=LcolpVNT;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ h13-20020a056402280d00b0049d221b4b39si7358600ede.187.2023.01.27.06.30.08;
+        Fri, 27 Jan 2023 06:30:08 -0800 (PST)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=LcolpVNT;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id B6FAB68BE30;
+	Fri, 27 Jan 2023 16:29:49 +0200 (EET)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com
+ [209.85.208.44])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 6A30868AD5C
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 27 Jan 2023 16:29:42 +0200 (EET)
+Received: by mail-ed1-f44.google.com with SMTP id v10so4873477edi.8
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 27 Jan 2023 06:29:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+ :reply-to; bh=thSr2N0jyVSRoJYbfuG6HD6+JkKrYrlt2WG8ymhuc2w=;
+ b=LcolpVNTrhbbWqTRbM6p1lO/sIBuTD/T/iYCNen9LCIhjaP3khoxYOzwOqdMkfkzAl
+ 1V54BaWFFwtJmkZ/qMvdzZ3Vn4aukoRKpkWKMqo1zEqjvdKLUEwpXgBtdN5v86T2bc4G
+ uSsxztVWKzFrucNQH3C+koHy6z8tVqdqbCbkUhkY7K2afiR+xQxFp27XRrx2wbxp/PDr
+ 92Ypi4yHfDs8vofhuVPtXThJlRVLi3Ber9ePoiDwEO7Rj9ROPfRJRX3gdXZJtW3oi9N7
+ I3CEJ5YuTjkVo8pfqXd6wFyMeRValb852Bg8Av9Dw2ZZbyu4XBC/SdFXLZ1qSMGOebix
+ lDgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=thSr2N0jyVSRoJYbfuG6HD6+JkKrYrlt2WG8ymhuc2w=;
+ b=ZKi8gY16ZdzPeL+lxluJI1c61FP4FDMfT7nfM/vtpX8GzyZRrBxpn3LjujS7Pgi1Cz
+ 2lfzyht87VxWBDaKFxTOvPMfzxLW/5kDUAwv49hMhnzxsBqEGEKulh54bMZOJ2yOYxu0
+ 7E4mmtEjsv22e2fz1wwSXzYCtY5n2hl0bkUjAn1whSw2NL668625tMwQFYXIxB+UBVt1
+ S5v9A7YZ5YzkHNHbk+uAEjRfdOBK/LZysmfs5VUyUX3dzVvkgrFgvIC9LKiIollW3hE5
+ NhAAJrpdGZ1GZL+JRkxXu/nFuRho0Wf1X451324YWI7t7DeOZFJp/rGl8MnhXCSCWzKN
+ k+Yw==
+X-Gm-Message-State: AFqh2kr68pXYNv2vRnwgv5Zl+GV6S9HMC+SxDPd99w4BVPIUrk4Hutze
+ rxV9zwjhhWq17REFETyGM1+cP9zLJ10=
+X-Received: by 2002:a05:6402:360d:b0:46c:2c94:d30b with SMTP id
+ el13-20020a056402360d00b0046c2c94d30bmr48095382edb.33.1674829781831;
+ Fri, 27 Jan 2023 06:29:41 -0800 (PST)
+Received: from localhost.localdomain (91-153-198-187.elisa-laajakaista.fi.
+ [91.153.198.187]) by smtp.gmail.com with ESMTPSA id
+ cm20-20020a170907939400b00871cb1b8f63sm2326387ejc.26.2023.01.27.06.29.40
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 27 Jan 2023 06:29:40 -0800 (PST)
+From: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Fri, 27 Jan 2023 16:29:30 +0200
+Message-Id: <20230127142931.35061-3-jeebjp@gmail.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230127142931.35061-1-jeebjp@gmail.com>
+References: <20230127142931.35061-1-jeebjp@gmail.com>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v7 2/3] ffmpeg: move decoded frame counter
+ from after post-processing to decode
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: M/ceMiQZZHYF
+
+From: Jan Ekström <jan.ekstrom@24i.com>
+
+This way we can call process_subtitles without causing the decoded
+frame counter to get bumped.
+
+Additionally, this now takes into mention all of the decoded
+subtitle frames without fix_sub_duration latency/buffering, or filtering
+out decoded reset/end subtitles without any rendered rectangles, which
+matches the original intent in 4754345027eb85cfa51aeb88beec68d7b036c11e
+.
+
+Signed-off-by: Jan Ekström <jan.ekstrom@24i.com>
+---
+ fftools/ffmpeg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/fftools/ffmpeg.c b/fftools/ffmpeg.c
+index 1a062f3863..35af565015 100644
+--- a/fftools/ffmpeg.c
++++ b/fftools/ffmpeg.c
+@@ -2244,8 +2244,6 @@ static int process_subtitle(InputStream *ist, AVSubtitle *subtitle, int *got_out
+     if (!subtitle->num_rects)
+         goto out;
+ 
+-    ist->frames_decoded++;
+-
+     for (OutputStream *ost = ost_iter(NULL); ost; ost = ost_iter(ost)) {
+         if (!check_output_constraints(ist, ost) || !ost->enc_ctx
+             || ost->enc_ctx->codec_type != AVMEDIA_TYPE_SUBTITLE)
+@@ -2276,6 +2274,8 @@ static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
+         return ret;
+     }
+ 
++    ist->frames_decoded++;
++
+     return process_subtitle(ist, &subtitle, got_output);
+ }
+ 
+
+From patchwork Fri Jan 27 14:29:31 2023
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Patchwork-Submitter: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+X-Patchwork-Id: 40146
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a05:6a20:3ca3:b0:b9:1511:ac2c with SMTP id b35csp1392042pzj;
+        Fri, 27 Jan 2023 06:30:18 -0800 (PST)
+X-Google-Smtp-Source: 
+ AK7set8DLzIWd5bLNHt0ZdH/k8RRgCTTWFcSyDRNnu77BmxGPddy4L81K7J/DosTfI7jA9rT0rSm
+X-Received: by 2002:a17:907:207a:b0:878:632c:91ae with SMTP id
+ qp26-20020a170907207a00b00878632c91aemr5715092ejb.50.1674829818137;
+        Fri, 27 Jan 2023 06:30:18 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1674829818; cv=none;
+        d=google.com; s=arc-20160816;
+        b=IZdWw09uQefmJEbb826PFHEy0V/GkiOkXjyvCt74aVTexHAjr+c0T28BzKw1qlSVaH
+         1iw83hFpvrd+rtt61zNGRLHR2MhOCOeZZPkGXfVS2ERYu97vMcw2EV30Kzp4RUTYeGOa
+         8t5TkGw8umem4uxj/rnqhooVyaslIfzX1wi6a8K3Wz+G2vZqrIIGG31ir5l+DmSy++0T
+         Q91fFv3kFTUNjGc+ZpoTpMEc/QTJ9nTmtAr37WwHfnBrYUXA3O5su6tJGYL/opflEGY4
+         4/uFkIljfgD3yO15A7XtcFUI8XOu7LwFhgmQkXhqo+dYakqVFjTsDeFRweB3H8at/DAt
+         xWPw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:references:in-reply-to:message-id
+         :date:to:from:dkim-signature:delivered-to;
+        bh=jFl0ApMqGwoxXFRaMRPSYTSE3Aq2bBwzsznQ9dx6Wyg=;
+        b=VyA9sQmtj9Alm+Gk1vz5iRYv1OttxgqzoVefJCiYAedTFDlk3+bmDmzPxoWmpZ5Pqd
+         5enSh6ySV4AIKW0WbtcTkin2MfdSf5tWZXGa7jFdBb1GK+rOMpoC49OJJCvYLxnboz1J
+         4+frwgycLXeJnUEtTyLFnftMTOHXFKqpxNzIt2nNTqn9I3FnOcfztnHrdgM3Yf2d6cdH
+         rJl7nNLopsWn3RPRYXrOePDqxv4pkwwbrkoaGBThbWa0OH7jrGfsK8fb21lbhumf1kSf
+         snKSi9hXskpdwDBGJqPXmwT1ES30IDDgWWujOcy0wiN12Ut5ResmQGwu457DuNOUrp8t
+         9zMw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b="A/ROwpJu";
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ ka6-20020a170907920600b0087bd4fbff7dsi1840877ejb.712.2023.01.27.06.30.17;
+        Fri, 27 Jan 2023 06:30:18 -0800 (PST)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b="A/ROwpJu";
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id B101968BE37;
+	Fri, 27 Jan 2023 16:29:50 +0200 (EET)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com
+ [209.85.218.41])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id CC07968BE21
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 27 Jan 2023 16:29:43 +0200 (EET)
+Received: by mail-ej1-f41.google.com with SMTP id k4so8706425eje.1
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 27 Jan 2023 06:29:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+ :reply-to; bh=HYutBP70zc4brBJ5SAk0qlFR7w86g5rl+8MXIEBQRQY=;
+ b=A/ROwpJuVthk2vDIPo5Lz2aeJPiMznCY/86PR6RrNHuA3BEg8e5Od/hSKN5mLreE6M
+ PaH9rJhFSorlxVqZo8v71m8FxZq+NnwUihEsGTmBTGk+htFpSDwpycYroY7QZBBJgNLP
+ vpxW+mCqQ4ObwrhKejRxwfUkbpQVaeNDcTD0DzsovyW9h9IQ0t2cvHxTFL4vZmcFRGCm
+ PGghg6/PN3TaiOoe9WsOxR2QTKSVQaBtjB0AVOv7EKNoXqX9HFPgzwyIsCm04IEpsMMg
+ +5cA7mQhEIbSsasfmyjp5AHBNDPNBKYhAWTKfrdQvXioSIBzNcB2ytMQ+s4FLR1h7XPP
+ TPvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=HYutBP70zc4brBJ5SAk0qlFR7w86g5rl+8MXIEBQRQY=;
+ b=HKF5vaiy+KVLBmc9S54tvIDueX8RSgCznD+18sSF/wzqsk5pC1L8MgTcJzETWJ27jY
+ v6Lo/OFIbXnTl2+1rE4MOpOaUz1VQXvyp35fStmkRO+3409yrNuIk6+1LgeAueAFWoMy
+ gErVp9025pYALJuVJTWTZayk7tZJWFhv5xgmQ/hgRsKnIF7iC5B3L8kcjiLeTV4MG/qX
+ QPUrBuK7x3r6mzKN879fPY0F6AZs6fV2EmRHjRLAhS8aYr2yxlNrE0XPBdZeoVW14znD
+ QGh8Y8F/UQImss72qol2aHX+Cn1eK4s5LDwjwhDYntfjdOkr/pKLPeOVooCf08q8SHSK
+ +7dA==
+X-Gm-Message-State: AFqh2kpmYU0pj71MO+uQIr7ZcPUKRyxur/05j4S3+GMbsBnMLkNYUJXa
+ YU2Sn0od4LEhfnWFRUWGMzPQV18mWMo=
+X-Received: by 2002:a17:907:8a07:b0:7c1:5ee1:4c57 with SMTP id
+ sc7-20020a1709078a0700b007c15ee14c57mr49115483ejc.8.1674829783110;
+ Fri, 27 Jan 2023 06:29:43 -0800 (PST)
+Received: from localhost.localdomain (91-153-198-187.elisa-laajakaista.fi.
+ [91.153.198.187]) by smtp.gmail.com with ESMTPSA id
+ cm20-20020a170907939400b00871cb1b8f63sm2326387ejc.26.2023.01.27.06.29.41
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 27 Jan 2023 06:29:42 -0800 (PST)
+From: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Fri, 27 Jan 2023 16:29:31 +0200
+Message-Id: <20230127142931.35061-4-jeebjp@gmail.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230127142931.35061-1-jeebjp@gmail.com>
+References: <20230127142931.35061-1-jeebjp@gmail.com>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v7 3/3] ffmpeg: add video heartbeat
+ capability to fix_sub_duration
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: nT3w6Sh9e/9E
+
+From: Jan Ekström <jan.ekstrom@24i.com>
+
+Splits the currently handled subtitle at random access point
+packets that can be configured to follow a specific output stream.
+Currently only subtitle streams which are directly mapped into the
+same output in which the heartbeat stream resides are affected.
+
+This way the subtitle - which is known to be shown at this time
+can be split and passed to muxer before its full duration is
+yet known. This is also a drawback, as this essentially outputs
+multiple subtitles from a single input subtitle that continues
+over multiple random access points. Thus this feature should not
+be utilized in cases where subtitle output latency does not matter.
+
+Co-authored-by: Andrzej Nadachowski <andrzej.nadachowski@24i.com>
+Co-authored-by: Bernard Boulay <bernard.boulay@24i.com>
+
+Signed-off-by: Jan Ekström <jan.ekstrom@24i.com>
+---
+ doc/ffmpeg.texi                               |  16 ++
+ fftools/ffmpeg.c                              | 148 ++++++++++++++++++
+ fftools/ffmpeg.h                              |   8 +
+ fftools/ffmpeg_mux_init.c                     |   4 +
+ fftools/ffmpeg_opt.c                          |   5 +
+ tests/fate/ffmpeg.mak                         |  15 ++
+ .../fate/ffmpeg-fix_sub_duration_heartbeat    |  48 ++++++
+ 7 files changed, 244 insertions(+)
+ create mode 100644 tests/ref/fate/ffmpeg-fix_sub_duration_heartbeat
+
+diff --git a/doc/ffmpeg.texi b/doc/ffmpeg.texi
+index 67b3294256..0eb791e6e9 100644
+--- a/doc/ffmpeg.texi
++++ b/doc/ffmpeg.texi
+@@ -1344,6 +1344,22 @@ List all hardware acceleration components enabled in this build of ffmpeg.
+ Actual runtime availability depends on the hardware and its suitable driver
+ being installed.
+ 
++@item -fix_sub_duration_heartbeat[:@var{stream_specifier}]
++Set a specific output video stream as the heartbeat stream according to which
++to split and push through currently in-progress subtitle upon receipt of a
++random access packet.
++
++This lowers the latency of subtitles for which the end packet or the following
++subtitle has not yet been received. As a drawback, this will most likely lead
++to duplication of subtitle events in order to cover the full duration, so
++when dealing with use cases where latency of when the subtitle event is passed
++on to output is not relevant this option should not be utilized.
++
++Requires @option{-fix_sub_duration} to be set for the relevant input subtitle
++stream for this to have any effect, as well as for the input subtitle stream
++having to be directly mapped to the same output in which the heartbeat stream
++resides.
++
+ @end table
+ 
+ @section Audio Options
+diff --git a/fftools/ffmpeg.c b/fftools/ffmpeg.c
+index 35af565015..069878e896 100644
+--- a/fftools/ffmpeg.c
++++ b/fftools/ffmpeg.c
+@@ -119,6 +119,7 @@ typedef struct BenchmarkTimeStamps {
+     int64_t sys_usec;
+ } BenchmarkTimeStamps;
+ 
++static int trigger_fix_sub_duration_heartbeat(OutputStream *ost, const AVPacket *pkt);
+ static BenchmarkTimeStamps get_benchmark_time_stamps(void);
+ static int64_t getmaxrss(void);
+ static int ifilter_has_all_input_formats(FilterGraph *fg);
+@@ -870,6 +871,13 @@ static int encode_frame(OutputFile *of, OutputStream *ost, AVFrame *frame)
+                    av_ts2str(pkt->duration), av_ts2timestr(pkt->duration, &enc->time_base));
+         }
+ 
++        if ((ret = trigger_fix_sub_duration_heartbeat(ost, pkt)) < 0) {
++            av_log(NULL, AV_LOG_ERROR,
++                   "Subtitle heartbeat logic failed in %s! (%s)\n",
++                   __func__, av_err2str(ret));
++            exit_program(1);
++        }
++
+         ost->data_size_enc += pkt->size;
+ 
+         if (enc->codec_type == AVMEDIA_TYPE_VIDEO)
+@@ -1832,6 +1840,16 @@ static void do_streamcopy(InputStream *ist, OutputStream *ost, const AVPacket *p
+ 
+     opkt->duration = av_rescale_q(pkt->duration, ist->st->time_base, ost->mux_timebase);
+ 
++    {
++        int ret = trigger_fix_sub_duration_heartbeat(ost, pkt);
++        if (ret < 0) {
++            av_log(NULL, AV_LOG_ERROR,
++                   "Subtitle heartbeat logic failed in %s! (%s)\n",
++                   __func__, av_err2str(ret));
++            exit_program(1);
++        }
++    }
++
+     of_output_packet(of, opkt, ost, 0);
+ 
+     ost->streamcopy_started = 1;
+@@ -2258,6 +2276,136 @@ out:
+     return ret;
+ }
+ 
++static int copy_av_subtitle(AVSubtitle *dst, AVSubtitle *src)
++{
++    int ret = AVERROR_BUG;
++    AVSubtitle tmp = {
++        .format = src->format,
++        .start_display_time = src->start_display_time,
++        .end_display_time = src->end_display_time,
++        .num_rects = 0,
++        .rects = NULL,
++        .pts = src->pts
++    };
++
++    if (!src->num_rects)
++        goto success;
++
++    if (!(tmp.rects = av_calloc(src->num_rects, sizeof(*tmp.rects))))
++        return AVERROR(ENOMEM);
++
++    for (int i = 0; i < src->num_rects; i++) {
++        AVSubtitleRect *src_rect = src->rects[i];
++        AVSubtitleRect *dst_rect;
++
++        if (!(dst_rect = tmp.rects[i] = av_mallocz(sizeof(*tmp.rects[0])))) {
++            ret = AVERROR(ENOMEM);
++            goto cleanup;
++        }
++
++        tmp.num_rects++;
++
++        dst_rect->type      = src_rect->type;
++        dst_rect->flags     = src_rect->flags;
++
++        dst_rect->x         = src_rect->x;
++        dst_rect->y         = src_rect->y;
++        dst_rect->w         = src_rect->w;
++        dst_rect->h         = src_rect->h;
++        dst_rect->nb_colors = src_rect->nb_colors;
++
++        if (src_rect->text)
++            if (!(dst_rect->text = av_strdup(src_rect->text))) {
++                ret = AVERROR(ENOMEM);
++                goto cleanup;
++            }
++
++        if (src_rect->ass)
++            if (!(dst_rect->ass = av_strdup(src_rect->ass))) {
++                ret = AVERROR(ENOMEM);
++                goto cleanup;
++            }
++
++        for (int j = 0; j < 4; j++) {
++            // SUBTITLE_BITMAP images are special in the sense that they
++            // are like PAL8 images. first pointer to data, second to
++            // palette. This makes the size calculation match this.
++            size_t buf_size = src_rect->type == SUBTITLE_BITMAP && j == 1 ?
++                              AVPALETTE_SIZE :
++                              src_rect->h * src_rect->linesize[j];
++
++            if (!src_rect->data[j])
++                continue;
++
++            if (!(dst_rect->data[j] = av_memdup(src_rect->data[j], buf_size))) {
++                ret = AVERROR(ENOMEM);
++                goto cleanup;
++            }
++            dst_rect->linesize[j] = src_rect->linesize[j];
++        }
++    }
++
++success:
++    *dst = tmp;
++
++    return 0;
++
++cleanup:
++    avsubtitle_free(&tmp);
++
++    return ret;
++}
++
++static int fix_sub_duration_heartbeat(InputStream *ist, int64_t signal_pts)
++{
++    int ret = AVERROR_BUG;
++    int got_output = 1;
++    AVSubtitle *prev_subtitle = &ist->prev_sub.subtitle;
++    AVSubtitle subtitle;
++
++    if (!ist->fix_sub_duration || !prev_subtitle->num_rects ||
++        signal_pts <= prev_subtitle->pts)
++        return 0;
++
++    if ((ret = copy_av_subtitle(&subtitle, prev_subtitle)) < 0)
++        return ret;
++
++    subtitle.pts = signal_pts;
++
++    return process_subtitle(ist, &subtitle, &got_output);
++}
++
++static int trigger_fix_sub_duration_heartbeat(OutputStream *ost, const AVPacket *pkt)
++{
++    OutputFile *of = output_files[ost->file_index];
++    int64_t signal_pts = av_rescale_q(pkt->pts, ost->mux_timebase,
++                                      AV_TIME_BASE_Q);
++
++    if (!ost->fix_sub_duration_heartbeat || !(pkt->flags & AV_PKT_FLAG_KEY))
++        // we are only interested in heartbeats on streams configured, and
++        // only on random access points.
++        return 0;
++
++    for (int i = 0; i < of->nb_streams; i++) {
++        OutputStream *iter_ost = of->streams[i];
++        InputStream  *ist      = iter_ost->ist;
++        int ret = AVERROR_BUG;
++
++        if (iter_ost == ost || !ist || !ist->decoding_needed ||
++            ist->dec_ctx->codec_type != AVMEDIA_TYPE_SUBTITLE)
++            // We wish to skip the stream that causes the heartbeat,
++            // output streams without an input stream, streams not decoded
++            // (as fix_sub_duration is only done for decoded subtitles) as
++            // well as non-subtitle streams.
++            continue;
++
++        if ((ret = fix_sub_duration_heartbeat(ist, signal_pts)) < 0)
++            return ret;
++    }
++
++    return 0;
++}
++
+ static int transcode_subtitles(InputStream *ist, AVPacket *pkt, int *got_output,
+                                int *decode_failed)
+ {
+diff --git a/fftools/ffmpeg.h b/fftools/ffmpeg.h
+index 5527dbe49b..896297fef6 100644
+--- a/fftools/ffmpeg.h
++++ b/fftools/ffmpeg.h
+@@ -224,6 +224,8 @@ typedef struct OptionsContext {
+     int        nb_reinit_filters;
+     SpecifierOpt *fix_sub_duration;
+     int        nb_fix_sub_duration;
++    SpecifierOpt *fix_sub_duration_heartbeat;
++    int        nb_fix_sub_duration_heartbeat;
+     SpecifierOpt *canvas_sizes;
+     int        nb_canvas_sizes;
+     SpecifierOpt *pass;
+@@ -625,6 +627,12 @@ typedef struct OutputStream {
+ 
+     int sq_idx_encode;
+     int sq_idx_mux;
++
++    /*
++     * bool on whether this stream should be utilized for splitting
++     * subtitles utilizing fix_sub_duration at random access points.
++     */
++    unsigned int fix_sub_duration_heartbeat;
+ } OutputStream;
+ 
+ typedef struct OutputFile {
+diff --git a/fftools/ffmpeg_mux_init.c b/fftools/ffmpeg_mux_init.c
+index 9eea8639dc..d2594cc309 100644
+--- a/fftools/ffmpeg_mux_init.c
++++ b/fftools/ffmpeg_mux_init.c
+@@ -57,6 +57,7 @@ static const char *const opt_name_disposition[]               = {"disposition",
+ static const char *const opt_name_enc_time_bases[]            = {"enc_time_base", NULL};
+ static const char *const opt_name_filters[]                   = {"filter", "af", "vf", NULL};
+ static const char *const opt_name_filter_scripts[]            = {"filter_script", NULL};
++static const char *const opt_name_fix_sub_duration_heartbeat[] = {"fix_sub_duration_heartbeat", NULL};
+ static const char *const opt_name_fps_mode[]                  = {"fps_mode", NULL};
+ static const char *const opt_name_force_fps[]                 = {"force_fps", NULL};
+ static const char *const opt_name_forced_key_frames[]         = {"forced_key_frames", NULL};
+@@ -342,6 +343,9 @@ static OutputStream *new_output_stream(Muxer *mux, const OptionsContext *o,
+     MATCH_PER_STREAM_OPT(bits_per_raw_sample, i, ost->bits_per_raw_sample,
+                          oc, st);
+ 
++    MATCH_PER_STREAM_OPT(fix_sub_duration_heartbeat, i, ost->fix_sub_duration_heartbeat,
++                         oc, st);
++
+     if (oc->oformat->flags & AVFMT_GLOBALHEADER && ost->enc_ctx)
+         ost->enc_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+ 
+diff --git a/fftools/ffmpeg_opt.c b/fftools/ffmpeg_opt.c
+index 3df02b7d7f..d187da88a0 100644
+--- a/fftools/ffmpeg_opt.c
++++ b/fftools/ffmpeg_opt.c
+@@ -1648,6 +1648,11 @@ const OptionDef options[] = {
+     { "autoscale",        HAS_ARG | OPT_BOOL | OPT_SPEC |
+                           OPT_EXPERT | OPT_OUTPUT,                               { .off = OFFSET(autoscale) },
+         "automatically insert a scale filter at the end of the filter graph" },
++    { "fix_sub_duration_heartbeat", OPT_VIDEO | OPT_BOOL | OPT_EXPERT |
++                                    OPT_SPEC | OPT_OUTPUT,                       { .off = OFFSET(fix_sub_duration_heartbeat) },
++        "set this video output stream to be a heartbeat stream for "
++        "fix_sub_duration, according to which subtitles should be split at "
++        "random access points" },
+ 
+     /* audio options */
+     { "aframes",        OPT_AUDIO | HAS_ARG  | OPT_PERFILE | OPT_OUTPUT,           { .func_arg = opt_audio_frames },
+diff --git a/tests/fate/ffmpeg.mak b/tests/fate/ffmpeg.mak
+index d87639c596..0f33c2a0ed 100644
+--- a/tests/fate/ffmpeg.mak
++++ b/tests/fate/ffmpeg.mak
+@@ -117,6 +117,21 @@ fate-ffmpeg-fix_sub_duration: CMD = fmtstdout srt -fix_sub_duration \
+   -real_time 1 -f lavfi \
+   -i "movie=$(TARGET_SAMPLES)/sub/Closedcaption_rollup.m2v[out0+subcc]"
+ 
++# Basic test for fix_sub_duration_heartbeat, which causes a buffered subtitle
++# to be pushed out when a video keyframe is received from an encoder.
++FATE_SAMPLES_FFMPEG-$(call FILTERDEMDECENCMUX, MOVIE, MPEGVIDEO, \
++                           MPEG2VIDEO, SUBRIP, SRT, LAVFI_INDEV  \
++                           MPEGVIDEO_PARSER CCAPTION_DECODER \
++                           MPEG2VIDEO_ENCODER NULL_MUXER PIPE_PROTOCOL) \
++                           += fate-ffmpeg-fix_sub_duration_heartbeat
++fate-ffmpeg-fix_sub_duration_heartbeat: CMD = fmtstdout srt -fix_sub_duration \
++  -real_time 1 -f lavfi \
++  -i "movie=$(TARGET_SAMPLES)/sub/Closedcaption_rollup.m2v[out0+subcc]" \
++  -map 0:v  -map 0:s -fix_sub_duration_heartbeat:v:0 \
++  -c:v mpeg2video -b:v 2M -g 30 -sc_threshold 1000000000 \
++  -c:s srt \
++  -f null -
++
+ FATE_STREAMCOPY-$(call REMUX, MP4 MOV, EAC3_DEMUXER) += fate-copy-trac3074
+ fate-copy-trac3074: CMD = transcode eac3 $(TARGET_SAMPLES)/eac3/csi_miami_stereo_128_spx.eac3\
+                      mp4 "-codec copy -map 0" "-codec copy"
+diff --git a/tests/ref/fate/ffmpeg-fix_sub_duration_heartbeat b/tests/ref/fate/ffmpeg-fix_sub_duration_heartbeat
+new file mode 100644
+index 0000000000..957a410921
+--- /dev/null
++++ b/tests/ref/fate/ffmpeg-fix_sub_duration_heartbeat
+@@ -0,0 +1,48 @@
++1
++00:00:00,968 --> 00:00:01,001
++<font face="Monospace">{\an7}(</font>
++
++2
++00:00:01,001 --> 00:00:01,168
++<font face="Monospace">{\an7}(</font>
++
++3
++00:00:01,168 --> 00:00:01,368
++<font face="Monospace">{\an7}(<i> inaudibl</i></font>
++
++4
++00:00:01,368 --> 00:00:01,568
++<font face="Monospace">{\an7}(<i> inaudible radio chat</i></font>
++
++5
++00:00:01,568 --> 00:00:02,002
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )</font>
++
++6
++00:00:02,002 --> 00:00:03,003
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )</font>
++
++7
++00:00:03,003 --> 00:00:03,103
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )</font>
++
++8
++00:00:03,103 --> 00:00:03,303
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )
++>></font>
++
++9
++00:00:03,303 --> 00:00:03,503
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )
++>> Safety rema</font>
++
++10
++00:00:03,504 --> 00:00:03,704
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )
++>> Safety remains our numb</font>
++
++11
++00:00:03,704 --> 00:00:04,004
++<font face="Monospace">{\an7}(<i> inaudible radio chatter</i> )
++>> Safety remains our number one</font>
++
