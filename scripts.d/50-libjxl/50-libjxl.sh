@@ -6,6 +6,7 @@ SCRIPT_COMMIT="6c296fb8ca5ea17a36c123eb82bba2102e26c411"
 ffbuild_enabled() {
     [[ $ADDINS_STR == *4.4* ]] && return -1
     [[ $ADDINS_STR == *5.0* ]] && return -1
+    [[ $ADDINS_STR == *6.0* ]] && return -1
     return 0
 }
 
@@ -45,11 +46,12 @@ ffbuild_dockerbuild() {
 }
 
 ffbuild_configure() {
-    echo --enable-libjxl
+    echo --disable-libjxl
 }
 
 ffbuild_unconfigure() {
     [[ $ADDINS_STR == *4.4* ]] && return 0
     [[ $ADDINS_STR == *5.0* ]] && return 0
+    [[ $ADDINS_STR == *6.0* ]] && return 0
     echo --disable-libjxl
 }
