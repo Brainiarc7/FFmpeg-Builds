@@ -1,0 +1,1553 @@
+From patchwork Fri Mar 17 01:55:26 2023
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Aidan <steve.rock.pet@gmail.com>
+X-Patchwork-Id: 40704
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a05:6a20:d046:b0:cd:afd7:272c with SMTP id hv6csp179132pzb;
+        Thu, 16 Mar 2023 18:56:47 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AK7set9pPTSAY20t9pWks8xiAOBFM7hgX2OsJAj/ebsk2J+hIUmTuvKI5J5TkbSe4+u8tudT0TeM
+X-Received: by 2002:a17:907:72c1:b0:920:388c:5c60 with SMTP id
+ du1-20020a17090772c100b00920388c5c60mr15013761ejc.41.1679018206992;
+        Thu, 16 Mar 2023 18:56:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1679018206; cv=none;
+        d=google.com; s=arc-20160816;
+        b=oxL4tp0J6A25leZnlIvLexWjKDOrIr0xy6eC67YkfkPxYrILmFHtfJiOGbrWKr4RLg
+         TbS/ieYOUi8Wxb6AwS1C8X4JksgE5eofFkdFMnhWdOwjGOfKLyzm2S9cBOV6a0ZcO/37
+         5jLbk8JkZbRq0PAAviNkfwZjpfC3Pqvw/aOhV6RulrW2ODRvmonrlEAa7hpcCZj/Vy4k
+         yaKpUHNhS3O6jNcHPqLB+hbwavOGb/nvYySUPv1nx1I1eFH/7QGoNJZMkluAmw9f56IB
+         6bAm7vk57qQOiXs4+16pZOoyw9JOFHrcp+sUlvmLayP6PZmN0DjSnVxqZf9ZjvnLo+Jt
+         xoiQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:cc:reply-to
+         :list-subscribe:list-help:list-post:list-archive:list-unsubscribe
+         :list-id:precedence:subject:mime-version:message-id:date:to:from
+         :dkim-signature:delivered-to;
+        bh=bVeuQNcSomYwPxdvA1ZQZX2qygiqHLt4sFz2EoqnLEY=;
+        b=fmY1Qn/UB87ictfwqN6HJzORioX0xD7ncV/s0dknH4H91B+6P1VpARIHOnFLfhWD8+
+         DenHMXyQF/SQxDm18TmTZTIUwPGjqrLWRZUt9ocOBAcxDSg2Ajn1qOizMNRUNNymSQPm
+         HqEBLOttWqTe01zlq3ww03OdazsZYAx1bRNHQmbg8skbn5lfGW720AuB0HqALgqp/b00
+         iQXWORFS3KYG1nnUy1jRlQqlP0Bep5Eaq4jsUOHHcegm7+44wQAiea60h6NBNw6y2w9O
+         iJYRMhqBLPobGYvsdFnCkcLkFdINjvXRk8LSH2qDlpBBa1f0a/UtWAnaLE4+a1/6860b
+         LuqA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=C134B7lu;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ g26-20020a1709063b1a00b0092ee9c27ba3si1018205ejf.477.2023.03.16.18.56.46;
+        Thu, 16 Mar 2023 18:56:46 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=C134B7lu;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 55BEA68C137;
+	Fri, 17 Mar 2023 03:56:42 +0200 (EET)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com
+ [209.85.216.53])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id CF8CB68838B
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 17 Mar 2023 03:56:35 +0200 (EET)
+Received: by mail-pj1-f53.google.com with SMTP id cn6so3515285pjb.2
+ for <ffmpeg-devel@ffmpeg.org>; Thu, 16 Mar 2023 18:56:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=gmail.com; s=20210112; t=1679018193;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=f/JTW9sjOymZ0LOHKLY/PpSgU8EbGX2a35fMxZoCBzc=;
+ b=C134B7luITVpYbIB29WXV2P7t/fypADjQRLWJNx9rwA1t88yemHkpNrZ/kp5Hk7Jac
+ 8CFnABbm3cO3vHu7/VFhF2C+lwxv7Y91nqEKcJr6S+ODhBRIcvOoR3Jb4rhnoBGkYFJy
+ a6ALWYBrz+J/7Nb01TaN9G62J1VW8CzBULiO3vHSk0PLza79/mW1AJB0XrY1cOb4qike
+ 1WMml1TtUOtLF8LeMsqM+Ws7ZodAlQcfc0f8Qg33bni2Tt1ZV+tUAuP0iPw3rGveeRcJ
+ C7VblZHeFVnVkWsV1ceIKR0XzVaBz6ZGP8GZjyx2Z+bEbqouyXwH5D15uXKoA11xiJ+L
+ nWYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1679018193;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=f/JTW9sjOymZ0LOHKLY/PpSgU8EbGX2a35fMxZoCBzc=;
+ b=JNB419xOwEwBDrC4b+Y09Pk/+SyCJMBHdTc0kJ4XuTuIrYJs53cqlMsAtguXR15C+X
+ nGena6mRMgxytR7r2QYmzEczQFElamKeq22MPPnWvelFOS9POTDZonsslg5fA7Ekic1n
+ MRdrRIXMYT8UWjzl1JBSmRZO7KNi+Ycgb7PWxOBcrJ+tuLbmg4y0/q3LD9pJ7rA+8dSl
+ wSX8nIa/9MDqD3Pt7UQMGsN95AvWJv85x+Fo5t76D7cor2Ps+3pe0Tw5R5NUHHw5tG/J
+ p1zUXGePqqc51h9eB/1oDPcIkna0GCrcKgOoD0AnbgsQO3FwxytBUHv3sbtap7Ywr3gD
+ /7IQ==
+X-Gm-Message-State: AO0yUKXDwTmgA6T1XI13ERaX0/72sps2BbE9o30p0Wken2xwzGuNU19M
+ 0UpLelIEloY87h1N5rfeIr6i47KZ269dzQ==
+X-Received: by 2002:a05:6a20:4f22:b0:c7:8779:416d with SMTP id
+ gi34-20020a056a204f2200b000c78779416dmr5678954pzb.58.1679018193483;
+ Thu, 16 Mar 2023 18:56:33 -0700 (PDT)
+Received: from localhost.localdomain ([193.29.61.196])
+ by smtp.gmail.com with ESMTPSA id
+ y11-20020a62b50b000000b005d61829db4fsm312894pfe.168.2023.03.16.18.56.32
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 16 Mar 2023 18:56:33 -0700 (PDT)
+From: TheDaChicken <steve.rock.pet@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Thu, 16 Mar 2023 18:55:26 -0700
+Message-Id: <20230317015527.425-1-steve.rock.pet@gmail.com>
+X-Mailer: git-send-email 2.37.1.windows.1
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH 1/2] avformat/ttml: Add demuxer
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Cc: Aidan <steve.rock.pet@gmail.com>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: KtrTta8+NXdu
+
+From: Aidan <steve.rock.pet@gmail.com>
+
+Requested: #4859
+
+Signed-off-by: Aidan Vaughan <steve.rock.pet@gmail.com>
+---
+ libavformat/Makefile     |   1 +
+ libavformat/allformats.c |   1 +
+ libavformat/ttmldec.c    | 432 +++++++++++++++++++++++++++++++++++++++
+ libavformat/version.h    |   2 +-
+ 4 files changed, 435 insertions(+), 1 deletion(-)
+ create mode 100644 libavformat/ttmldec.c
+
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index 47bbbbfb2a..5f29e05618 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -576,6 +576,7 @@ OBJS-$(CONFIG_TRUEHD_DEMUXER)            += rawdec.o mlpdec.o
+ OBJS-$(CONFIG_TRUEHD_MUXER)              += rawenc.o
+ OBJS-$(CONFIG_TTA_DEMUXER)               += tta.o apetag.o img2.o
+ OBJS-$(CONFIG_TTA_MUXER)                 += ttaenc.o apetag.o img2.o
++OBJS-$(CONFIG_TTML_DEMUXER)              += ttmldec.o
+ OBJS-$(CONFIG_TTML_MUXER)                += ttmlenc.o
+ OBJS-$(CONFIG_TTY_DEMUXER)               += tty.o sauce.o
+ OBJS-$(CONFIG_TY_DEMUXER)                += ty.o
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index cb5b69e9cd..0280592f7b 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -459,6 +459,7 @@ extern const AVInputFormat  ff_truehd_demuxer;
+ extern const FFOutputFormat ff_truehd_muxer;
+ extern const AVInputFormat  ff_tta_demuxer;
+ extern const FFOutputFormat ff_tta_muxer;
++extern const AVInputFormat  ff_ttml_demuxer;
+ extern const FFOutputFormat ff_ttml_muxer;
+ extern const AVInputFormat  ff_txd_demuxer;
+ extern const AVInputFormat  ff_tty_demuxer;
+diff --git a/libavformat/ttmldec.c b/libavformat/ttmldec.c
+new file mode 100644
+index 0000000000..e63a2d04c8
+--- /dev/null
++++ b/libavformat/ttmldec.c
+@@ -0,0 +1,432 @@
++/*
++ * TTML subtitle demuxer
++ * Copyright (c) 2023 Aidan Vaughan (TheDaChicken)
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/**
++ * @file
++ * TTML subtitle demuxer
++ * @see https://www.w3.org/TR/ttml1/
++ * @see https://www.w3.org/TR/ttml2/
++ * @see https://www.w3.org/TR/ttml-imsc/rec
++ */
++
++#include <libxml/parser.h>
++#include "avformat.h"
++#include "ttmlenc.h"
++#include "internal.h"
++#include "subtitles.h"
++#include "libavutil/intreadwrite.h"
++#include "libavutil/opt.h"
++
++typedef struct {
++    const AVClass *class;
++    FFDemuxSubtitlesQueue q;
++    int kind;
++    const char* lang;
++    uint8_t* header;
++    int header_size;
++    int cea_608_drawing;
++} TTMLContext;
++
++/* https://www.w3.org/TR/2018/REC-ttml2-20181108/#timing-value-time-expression */
++static int64_t read_ts(const char *s)
++{
++    /* Clock-time format */
++    int hh, mm, ss, ms;
++    if (sscanf(s, "%u:%u:%u.%u", &hh, &mm, &ss, &ms) == 4) return (hh*3600LL + mm*60LL + ss) * 1000LL + ms;
++    if (sscanf(s, "%u:%u:%u:%u", &hh, &mm, &ss, &ms) == 4) return (hh*3600LL + mm*60LL + ss) * 1000LL + ms;
++    /* ^^^ may contain seconds not as a fraction (.) ???? */
++    if (sscanf(s, "%u:%u.%u",      &mm, &ss, &ms) == 3) return (            mm*60LL + ss) * 1000LL + ms;
++    return AV_NOPTS_VALUE;
++}
++
++static int dump_ns(AVBPrint* buf, xmlNsPtr cur, int another) {
++    if (cur->prefix != NULL) {
++        av_bprintf(buf, "xmlns:%s", cur->prefix);
++    }
++    else
++        av_bprintf(buf, "xmlns");
++    av_bprintf(buf, "=\"");
++    av_bprint_escape(buf, cur->href, NULL,
++                     AV_ESCAPE_MODE_XML,
++                     AV_ESCAPE_FLAG_XML_DOUBLE_QUOTES);
++    av_bprintf(buf, "\"");
++    if(another)
++        av_bprintf(buf, " ");
++    return 0;
++}
++
++static int dump_attr(AVBPrint* buf, xmlNsPtr ns, const char* name, const xmlChar *val, int another) {
++    if(!val)
++        return 0;
++
++    if ((ns != NULL) && (ns->prefix != NULL)) {
++        av_bprintf(buf, "%s:", ns->prefix);
++    }
++    av_bprintf(buf, "%s=\"", name);
++    av_bprint_escape(buf, val, NULL,
++                     AV_ESCAPE_MODE_XML,
++                     AV_ESCAPE_FLAG_XML_DOUBLE_QUOTES);
++    av_bprintf(buf, "\"");
++    if(another)
++        av_bprintf(buf, " ");
++    return 0;
++}
++
++static int parse_body(AVFormatContext *s, const char *url, xmlDoc *doc, xmlNodePtr body)
++{
++    int ret = 0;
++    TTMLContext *ttml = s->priv_data;
++    xmlNodePtr div = NULL;
++    xmlNodePtr p_node = NULL;
++    xmlAttrPtr body_attr = body->properties;
++    xmlChar* val = NULL;
++    xmlBufferPtr p_buf;
++    AVBPrint p_attr_buf;
++    AVBPrint body_attr_buf;
++
++    div = xmlFirstElementChild(body);
++    if(!av_stristr(div->name, "div")) /* div must exist for proper ttml */
++    {
++        av_log(s, AV_LOG_ERROR, "Unable to parse '%s' - wrong node in body name[%s]\n",
++               url, div->name);
++        return AVERROR_INVALIDDATA;
++    }
++
++    av_bprint_init(&p_attr_buf, 0, INT_MAX);
++    av_bprint_init(&body_attr_buf, 0, INT_MAX);
++
++    while (body_attr) {
++        val = xmlGetProp(body, body_attr->name);
++        dump_attr(&body_attr_buf, body_attr->ns, body_attr->name, val, body_attr->next != NULL);
++        body_attr = body_attr->next;
++        xmlFree(val);
++    }
++
++    p_buf = xmlBufferCreate();
++    p_node = xmlFirstElementChild(div);
++    while(p_node) {
++        AVPacket *sub;
++        xmlNodePtr child = NULL;
++        xmlAttrPtr p_attr = p_node->properties;
++        int64_t ts_start, ts_end = AV_NOPTS_VALUE, ts_dur = AV_NOPTS_VALUE;
++
++        if (strncmp(p_node->name, "p", 1) != 0) {
++            av_log(s, AV_LOG_ERROR, "Unable to parse '%s' - wrong subtitle node name[%s]\n",
++                   url, div->name);
++            ret = AVERROR_INVALIDDATA;
++            goto cleanup;
++        }
++
++        dump_attr(&p_attr_buf, p_attr->ns, "default", body_attr_buf.str, p_attr->next != NULL);
++        while (p_attr) {
++            val = xmlGetProp(p_node, p_attr->name);
++
++            if(!val)
++            {
++                av_log(s, AV_LOG_WARNING, "parse_body p_attr->name = %s val is NULL\n", p_attr->name);
++                p_attr = p_attr->next;
++                continue;
++            }
++
++            if (!strncmp(p_attr->name, "begin", 5)) {
++                ts_start = read_ts(val); /* doc: https://www.w3.org/TR/2018/REC-ttml2-20181108/#timing-attribute-begin */
++            } else if (!strncmp(p_attr->name, "end", 3)) {
++                ts_end = read_ts(val); /* doc: https://www.w3.org/TR/2018/REC-ttml2-20181108/#timing-attribute-end */
++            } else if (!strncmp(p_attr->name, "dur", 3)) {
++                ts_dur = read_ts(val); /* doc: https://www.w3.org/TR/2018/REC-ttml2-20181108/#timing-attribute-dur */
++            } else {
++                dump_attr(&p_attr_buf, p_attr->ns, p_attr->name, val, p_attr->next != NULL);
++            }
++
++            p_attr = p_attr->next;
++            xmlFree(val);
++        }
++
++        /* couldn't find pts in p tag */
++        if(ts_start == AV_NOPTS_VALUE || (ts_end == AV_NOPTS_VALUE && ts_dur == AV_NOPTS_VALUE)) {
++            av_log(s, AV_LOG_ERROR, "Unable to parse '%s' - no timestamp line[%d]\n",
++                   url, p_node->line);
++            ret = AVERROR_INVALIDDATA;
++            goto cleanup;
++        }
++
++        /* dump data to packet for decoding */
++        child = p_node->children;
++        while (child != NULL) {
++            if(!strncmp(child->name, "metadata", 8) && !ttml->cea_608_drawing)
++            { /* check if the "metadata" tag is meant to contain cea-608 rows/cols */
++                val = xmlGetProp(child, "ccrow");
++                if(val) {
++                    xmlFree(val);
++                    goto next;
++                }
++            }
++
++            ret = xmlNodeDump(p_buf, doc, child, 0, 0);
++            if (ret < 0) {
++                ret = AVERROR_INVALIDDATA;
++                goto cleanup;
++            }
++            next:
++            child = child->next;
++        }
++
++        /* create packet */
++        sub = ff_subtitles_queue_insert(&ttml->q, xmlBufferContent(p_buf), xmlBufferLength(p_buf), 0);
++        if (!sub) {
++            ret = AVERROR(ENOMEM);
++            goto cleanup;
++        }
++        sub->pts = ts_start;
++        if(ts_dur != AV_NOPTS_VALUE)
++            sub->duration = ts_dur;
++        else
++            sub->duration = ts_end - ts_start;
++
++        if (p_attr_buf.len)
++        {
++            /* Keep the properties of p styles */
++            uint8_t *side_data_buf = av_packet_new_side_data(sub, AV_PKT_DATA_WEBVTT_SETTINGS,
++                                                             p_attr_buf.len);
++            if(!side_data_buf)
++                goto cleanup;
++            memcpy(side_data_buf, p_attr_buf.str, p_attr_buf.len);
++        }
++
++        p_node = xmlNextElementSibling(p_node);
++        xmlBufferEmpty(p_buf);
++        av_bprint_clear(&p_attr_buf);
++    }
++
++    ff_subtitles_queue_finalize(s, &ttml->q);
++
++    cleanup:
++    av_bprint_finalize(&p_attr_buf, NULL);
++    av_bprint_finalize(&body_attr_buf, NULL);
++    xmlBufferFree(p_buf);
++    return ret;
++}
++
++static int parse_ttml(AVFormatContext *s, AVIOContext *in, const char *url) {
++    TTMLContext *ttml = s->priv_data;
++    int ret = 0;
++    AVBPrint buf;
++    xmlDoc *doc = NULL;
++    xmlNodePtr root_element = NULL;
++    xmlNodePtr child_node = NULL;
++    xmlAttrPtr attr_ptr = NULL;
++    xmlNsPtr ns_ptr = NULL;
++    xmlChar *val = NULL;
++
++    av_bprint_init(&buf, 0, INT_MAX);
++
++    ret = avio_read_to_bprint(in, &buf, SIZE_MAX);
++    if (ret < 0 || !avio_feof(in)) {
++        av_log(s, AV_LOG_ERROR, "Unable to parse '%s'\n", url);
++        if (ret == 0)
++            ret = AVERROR_INVALIDDATA;
++        goto cleanup;
++    }
++
++    LIBXML_TEST_VERSION
++
++    doc = xmlReadMemory(buf.str, buf.len, url, NULL, 0);
++    root_element = xmlDocGetRootElement(doc);
++
++    if (!root_element) {
++        ret = AVERROR_INVALIDDATA;
++        av_log(s, AV_LOG_ERROR, "Unable to parse '%s' - missing root node\n", url);
++        goto cleanup;
++    }
++
++    if (root_element->type != XML_ELEMENT_NODE || av_strcasecmp(root_element->name, "TT")) {
++        ret = AVERROR_INVALIDDATA;
++        av_log(s, AV_LOG_ERROR, "Unable to parse '%s' - wrong root node name[%s] type[%d]\n",
++               url, root_element->name, (int) root_element->type);
++        goto cleanup;
++    }
++
++    av_bprint_clear(&buf);
++
++    child_node = xmlFirstElementChild(root_element);
++    while(child_node) /* traverse through root nodes to get head, body */
++    {
++        if(!strncmp(child_node->name, "head", 4))
++        {
++            xmlBufferPtr header_buf = xmlBufferCreate();
++            if(!header_buf)
++                return AVERROR(ENOMEM);
++
++            /* read and create extra-data */
++            /* extra-data first contains namespace (attrs) of tt */
++            attr_ptr = root_element->properties;
++            while (attr_ptr) {
++                val = xmlGetProp(root_element, attr_ptr->name);
++                if (!strncmp(attr_ptr->name, "lang", 4)) {
++                    ttml->lang = av_strdup(val);
++                } else {
++                    dump_attr(&buf, attr_ptr->ns, attr_ptr->name, val, attr_ptr->next != NULL);
++                }
++                attr_ptr = attr_ptr->next;
++                xmlFree(val);
++            }
++
++            /* take definitions */
++            ns_ptr = root_element->nsDef;
++            if(ns_ptr)
++                av_bprintf(&buf, " ");
++            while (ns_ptr) {
++                dump_ns(&buf, ns_ptr, ns_ptr->next != NULL);
++                ns_ptr = ns_ptr->next;
++            }
++
++            av_bprint_chars(&buf, '\0', 1);
++
++            /* dump head element containing the styles */
++            xmlNodeDump(header_buf, doc, child_node, 0,0);
++
++            av_bprint_append_data(&buf, xmlBufferContent(header_buf), xmlBufferLength(header_buf));
++            av_bprint_chars(&buf, '\n', 1); /* new line due to head */
++            av_bprint_chars(&buf, '\0', 1);
++
++            ttml->header = av_malloc(buf.len);
++            if(!ttml->header)
++                return AVERROR(ENOMEM);
++
++            /* copy */
++            ttml->header_size = buf.len;
++            memcpy(ttml->header, buf.str, buf.len);
++
++            xmlBufferFree(header_buf);
++        }
++        else if(!strncmp(child_node->name, "body", 4) &&
++                (ret = parse_body(s, url, doc, child_node)) < 0)
++        {
++            av_log(s, AV_LOG_ERROR, "Unable to parse '%s' - body\n", url);
++            goto cleanup;
++        }
++        child_node = xmlNextElementSibling(child_node);
++    }
++
++
++    cleanup:
++    xmlFreeDoc(doc);
++    xmlCleanupParser();
++    av_bprint_finalize(&buf, NULL);
++    return ret;
++}
++
++static int ttml_probe(const AVProbeData *p)
++{
++    if (!av_stristr(p->buf, "<tt"))
++        return 0;
++
++    if (av_stristr(p->buf, "xmlns=\"http://www.w3.org/ns/ttml\"") /* current */ ||
++        av_stristr(p->buf, "xmlns=\"http://www.w3.org/2006/\"")) /* for unstable old urls */
++        return AVPROBE_SCORE_MAX;
++
++    return 0;
++}
++
++static int ttml_read_header(AVFormatContext *s)
++{
++    const size_t base_extradata_size = TTMLENC_EXTRADATA_SIGNATURE_SIZE + 1 +
++                                       AV_INPUT_BUFFER_PADDING_SIZE;
++    TTMLContext *ttml = s->priv_data;
++    AVStream *st;
++    int ret = 0;
++
++    if((ret = parse_ttml(s, s->pb, s->url)) < 0)
++        return ret;
++
++    st = avformat_new_stream(s, NULL);
++    if (!st)
++        return AVERROR(ENOMEM);
++    avpriv_set_pts_info(st, 64, 1, 1000);
++    st->codecpar->codec_type = AVMEDIA_TYPE_SUBTITLE;
++    st->codecpar->codec_id   = AV_CODEC_ID_TTML;
++    st->codecpar->extradata = av_malloc(ttml->header_size +
++                                        base_extradata_size);
++    if (!st->codecpar->extradata)
++        return AVERROR(ENOMEM);
++
++    memcpy(st->codecpar->extradata, TTMLENC_EXTRADATA_SIGNATURE,
++           TTMLENC_EXTRADATA_SIGNATURE_SIZE);
++    memcpy(st->codecpar->extradata + TTMLENC_EXTRADATA_SIGNATURE_SIZE,
++           ttml->header, ttml->header_size);
++    st->codecpar->extradata_size = ttml->header_size + base_extradata_size;
++
++    av_dict_set(&st->metadata, "language", ttml->lang, 0);
++
++    return ret;
++}
++
++static int ttml_read_packet(AVFormatContext *s, AVPacket *pkt)
++{
++    TTMLContext *ttml = s->priv_data;
++    return ff_subtitles_queue_read_packet(&ttml->q, pkt);
++}
++
++static int ttml_read_seek(AVFormatContext *s, int stream_index,
++                          int64_t min_ts, int64_t ts, int64_t max_ts, int flags)
++{
++    TTMLContext *ttml = s->priv_data;
++    return ff_subtitles_queue_seek(&ttml->q, s, stream_index,
++                                   min_ts, ts, max_ts, flags);
++}
++
++static int ttml_read_close(AVFormatContext *s)
++{
++    TTMLContext *ttml = s->priv_data;
++    ff_subtitles_queue_clean(&ttml->q);
++    av_free(ttml->header);
++    return 0;
++}
++
++#define OFFSET(x) offsetof(TTMLContext, x)
++#define KIND_FLAGS AV_OPT_FLAG_SUBTITLE_PARAM|AV_OPT_FLAG_DECODING_PARAM
++
++static const AVOption options[] = {
++        { "cea_608_drawing", "Enable unofficial ttml cea-608 support", OFFSET(kind), AV_OPT_TYPE_BOOL, { .i64 = 0 }, 0, 1, KIND_FLAGS},
++        { NULL }
++};
++
++static const AVClass ttml_demuxer_class = {
++        .class_name  = "TTML demuxer",
++        .item_name   = av_default_item_name,
++        .option      = options,
++        .version     = LIBAVUTIL_VERSION_INT,
++};
++
++const AVInputFormat ff_ttml_demuxer = {
++        .name           = "ttml",
++        .long_name      = NULL_IF_CONFIG_SMALL("TTML subtitle"),
++        .priv_data_size = sizeof(TTMLContext),
++        .priv_class     = &ttml_demuxer_class,
++        .flags_internal = FF_FMT_INIT_CLEANUP,
++        .read_probe     = ttml_probe,
++        .read_header    = ttml_read_header,
++        .read_packet    = ttml_read_packet,
++        .read_seek2     = ttml_read_seek,
++        .read_close     = ttml_read_close,
++        .extensions     = "ttml",
++        .mime_type      = "application/ttml+xml",
++};
+diff --git a/libavformat/version.h b/libavformat/version.h
+index af7d0a1024..e2634b85ae 100644
+--- a/libavformat/version.h
++++ b/libavformat/version.h
+@@ -31,7 +31,7 @@
+ 
+ #include "version_major.h"
+ 
+-#define LIBAVFORMAT_VERSION_MINOR   4
++#define LIBAVFORMAT_VERSION_MINOR   5
+ #define LIBAVFORMAT_VERSION_MICRO 100
+ 
+ #define LIBAVFORMAT_VERSION_INT AV_VERSION_INT(LIBAVFORMAT_VERSION_MAJOR, \
+
+From patchwork Fri Mar 17 01:55:27 2023
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Aidan <steve.rock.pet@gmail.com>
+X-Patchwork-Id: 40705
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a05:6a20:d046:b0:cd:afd7:272c with SMTP id hv6csp179177pzb;
+        Thu, 16 Mar 2023 18:56:58 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AK7set9wEa2R8riun4DnoZTFN9rAIzv5Owzu1BKvoCLlsAgUooOEQ280Tzit4Wj8rchVtRih5o4D
+X-Received: by 2002:a17:907:3908:b0:930:6e31:3c11 with SMTP id
+ so8-20020a170907390800b009306e313c11mr4708608ejc.70.1679018217998;
+        Thu, 16 Mar 2023 18:56:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1679018217; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Kj7/z6vP1DtKsDa6nugxn2O/JI+dg03dLJgIa/QLddP8PV1kgamxdT8nc3Sjh+iAyr
+         WfAc4pfiny8A4v2oF7c+lt03nL3VHaUf2umgN2dlA89ewMPs2NZxznQneuoJG3I94GiS
+         4cFCLehevl285WOl1UYiGSsKDrJats30X9sDK9FwhnPYghlzN2HS/hAb6mw7lRZUVDZF
+         AGlUk5hk93+9TMZaLk9N5xGITJQ9oQvA1CMTZVoZYfpFUBTJkMOzna1dFKasM+zKpOcc
+         7Wke3vIatCKoVSi6EDqkQo8H6216v9PgFR+eP/EiNsrz/Y3BU6zfy1ejctHwYV7wr38x
+         vR+g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:cc:reply-to
+         :list-subscribe:list-help:list-post:list-archive:list-unsubscribe
+         :list-id:precedence:subject:mime-version:references:in-reply-to
+         :message-id:date:to:from:dkim-signature:delivered-to;
+        bh=R39G9Hs9+z52D4+PRs24o3EyyuBuq8quZF5ujP1IIEc=;
+        b=FJCb8W8rZiVXxPgwBrfy81R5K7UPF2iiozJx1xBqY7NEv4ajy+cEbbGlzlI+IteOD7
+         t/vbiddYKXQlz7ZVR6G3ZovOIhIDfY6cZFnKGlZHbDCx31+cA1lLDvR90c61J8a7FM/S
+         fhYVgdgi/mB8e+gW5h0Abo5IK3njUazsk2txH/HbcR9+wiWytejswcXEy1qxVo5wOpvu
+         lAn626YbzfLtEeEQQ+nTJR0R1OSe28cU5+uY4ojYzKe6Wk/Lk9i3pTbrQ1wNYLX1Hub6
+         jJL4qPvaF63XW6hsMPYK4uSeowri6oAnMXn3q3xDWMBlDo5vzxb8Lz7CpxGnWm8ScBe+
+         5RQA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=iKg7g+9C;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ w14-20020a1709064a0e00b00930943f134esi948789eju.8.2023.03.16.18.56.57;
+        Thu, 16 Mar 2023 18:56:57 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com
+ header.s=20210112 header.b=iKg7g+9C;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 6A13968C0D2;
+	Fri, 17 Mar 2023 03:56:43 +0200 (EET)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com
+ [209.85.216.45])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 7375468838B
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 17 Mar 2023 03:56:36 +0200 (EET)
+Received: by mail-pj1-f45.google.com with SMTP id
+ om3-20020a17090b3a8300b0023efab0e3bfso7240327pjb.3
+ for <ffmpeg-devel@ffmpeg.org>; Thu, 16 Mar 2023 18:56:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=gmail.com; s=20210112; t=1679018194;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=DenfzCdRLhdcjY6j8j3m6S7SfxXfjlymbcptNr5j7RU=;
+ b=iKg7g+9Cc9zwEY7tisxCclCcPIpd8cblamxxJfaCTeaItZctUE9+ouUv92IhMgP9Wx
+ Sq5/a6PVq0gRbDeRPnXlTCEyfVuOkOIcKMtwjoH3vAc00i3uvqSp/YuV9F0yFodJUkGi
+ YyRGMLhivrgeZSfYEVHz3FxkxTvxV2ks1GWClQy2bVb2XOu9kmM4zGxRa7KSCG9aq0GD
+ T6Hj1g8udF0hWyc/+F66FJ+tHXp+cRzyU8ECwXlxP3w14O2FPwoZzd6KEc4mh+Uu3qbu
+ roDh0erqj2b8PflD96hXb/64dOj/xlu1uSN3xoU5aSIKgHNBlikaoxtGauOE1WTL1+qg
+ Vd/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1679018194;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=DenfzCdRLhdcjY6j8j3m6S7SfxXfjlymbcptNr5j7RU=;
+ b=6IUCP4mMEXLSqSLbRSfUVH9Z9wGHRKm3QQAbA1aAEbjh3RlGMwjAwugLjSe9qS0p3H
+ 7vKfvgd11nUEyna7eyhKOaRT9XK3/uBeU6woUaAasfEcowxlUHIOkEo+N85bY1hm/Jd9
+ yZKBugqYg23UAI9Ru5nMX3ewOIXPCGdegvTGhCLcG+iyQEdXYrXq1UTSGP2NKWs8jwXZ
+ Bo7ULATeA5sU64ChgR75BD73dPSir3LfqJkDqQ1hTEG8joqCojoWmxVpEAm+/CPHq7AJ
+ xjzEWJ0Sf1J4tbXTneEPa4/QpHJNI7v8Z05ZJJodtiZoYOKQM0bVECRjZnTFWMCk/GgG
+ jTsw==
+X-Gm-Message-State: AO0yUKUf2PafDNp2YvZpy/groupzJcP8gdHOPaJszXl/0AFW0tVmmBh9
+ vjL5SPp25PoaqboPyJvbL9baxhKC8JfLxw==
+X-Received: by 2002:a05:6a20:2450:b0:ca:4fde:4aec with SMTP id
+ t16-20020a056a20245000b000ca4fde4aecmr7828316pzc.49.1679018194248;
+ Thu, 16 Mar 2023 18:56:34 -0700 (PDT)
+Received: from localhost.localdomain ([193.29.61.196])
+ by smtp.gmail.com with ESMTPSA id
+ y11-20020a62b50b000000b005d61829db4fsm312894pfe.168.2023.03.16.18.56.33
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 16 Mar 2023 18:56:33 -0700 (PDT)
+From: TheDaChicken <steve.rock.pet@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Thu, 16 Mar 2023 18:55:27 -0700
+Message-Id: <20230317015527.425-2-steve.rock.pet@gmail.com>
+X-Mailer: git-send-email 2.37.1.windows.1
+In-Reply-To: <20230317015527.425-1-steve.rock.pet@gmail.com>
+References: <20230317015527.425-1-steve.rock.pet@gmail.com>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH 2/2] avcodec/ttml: Add decoder
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Cc: Aidan <steve.rock.pet@gmail.com>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: rW0RxI29PAVf
+
+From: Aidan <steve.rock.pet@gmail.com>
+
+Requested: #4859
+
+Signed-off-by: Aidan Vaughan <steve.rock.pet@gmail.com>
+---
+I've had some challenges implementing some sort of TTML decoder/demux support.
+With TTML being an XML format, the easist way to ensure a valid XML file was to use libxml2. 
+Using libxml2, it requires dumping xml to be read for the decoder. (Which I hate because it must be parsed back in the decoder!!!!)
+
+Plus, TTML has a vast number of ways defining styles.
+For example, I had to use AV_PKT_DATA_WEBVTT_SETTINGS because styles can be defined in the <p> tag.
+Also styles can be defined in the body as defaults.
+
+I used a workaround by providing the default body styles in each packets's AV_PKT_DATA_WEBVTT_SETTINGS.
+While writing this, I just realized I could provide body styles in the extradata.
+I could send another patch to switch to that instead. I'd would like my code to be reviewed first.
+
+This definitely isn't perfect & isn't complete support with all the features.
+There are some valid ttml files that won't work. For example, ttml files that contain metrics for timestamps.
+You can see https://trac.ffmpeg.org/ticket/4859 for some quirky ttml files.
+
+Here is the TTML file I was using for testing: https://gist.github.com/TheDaChicken/30cb6d4c3f603725c5bd8f034ea75650
+
+Copying from ttml demuxer -> ttml encoder isn't perfect either.
+It is possible to add to the encoder to preserve more things. I didn't want to mess with any code I didn't write unless it's required.
+
+Any review of my code is appreciated (my code ain't perfect) and especially getting more support in ffmpeg for TTML.
+It would be nice to have support for ttml decoding. (As someone who has had some fair share of ttml files)
+
+ configure              |   2 +
+ libavcodec/Makefile    |   1 +
+ libavcodec/allcodecs.c |   1 +
+ libavcodec/ttmldec.c   | 711 +++++++++++++++++++++++++++++++++++++++++
+ libavcodec/version.h   |   2 +-
+ 5 files changed, 716 insertions(+), 1 deletion(-)
+ create mode 100644 libavcodec/ttmldec.c
+
+diff --git a/configure b/configure
+index 03d3c429a5..fbe11f3663 100755
+--- a/configure
++++ b/configure
+@@ -3311,6 +3311,7 @@ pcm_alaw_at_decoder_deps="audiotoolbox"
+ pcm_mulaw_at_decoder_deps="audiotoolbox"
+ qdmc_at_decoder_deps="audiotoolbox"
+ qdm2_at_decoder_deps="audiotoolbox"
++ttml_decoder_deps="libxml2"
+ aac_at_encoder_deps="audiotoolbox"
+ aac_at_encoder_select="audio_frame_queue"
+ alac_at_encoder_deps="audiotoolbox"
+@@ -3479,6 +3480,7 @@ rtp_mpegts_muxer_select="mpegts_muxer rtp_muxer"
+ rtpdec_select="asf_demuxer mov_demuxer mpegts_demuxer rm_demuxer rtp_protocol srtp"
+ rtsp_demuxer_select="http_protocol rtpdec"
+ rtsp_muxer_select="rtp_muxer http_protocol rtp_protocol rtpenc_chain"
++ttml_demuxer_deps="libxml2"
+ sap_demuxer_select="sdp_demuxer"
+ sap_muxer_select="rtp_muxer rtp_protocol rtpenc_chain"
+ sdp_demuxer_select="rtpdec"
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index abae4909d2..96fc259c93 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -719,6 +719,7 @@ OBJS-$(CONFIG_TSCC_DECODER)            += tscc.o msrledec.o
+ OBJS-$(CONFIG_TSCC2_DECODER)           += tscc2.o
+ OBJS-$(CONFIG_TTA_DECODER)             += tta.o ttadata.o ttadsp.o
+ OBJS-$(CONFIG_TTA_ENCODER)             += ttaenc.o ttaencdsp.o ttadata.o
++OBJS-$(CONFIG_TTML_DECODER)            += ttmldec.o
+ OBJS-$(CONFIG_TTML_ENCODER)            += ttmlenc.o ass_split.o
+ OBJS-$(CONFIG_TWINVQ_DECODER)          += twinvqdec.o twinvq.o
+ OBJS-$(CONFIG_TXD_DECODER)             += txd.o
+diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+index 385ee34803..43ac735dc6 100644
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -730,6 +730,7 @@ extern const FFCodec ff_subviewer_decoder;
+ extern const FFCodec ff_subviewer1_decoder;
+ extern const FFCodec ff_text_encoder;
+ extern const FFCodec ff_text_decoder;
++extern const FFCodec ff_ttml_decoder;
+ extern const FFCodec ff_ttml_encoder;
+ extern const FFCodec ff_vplayer_decoder;
+ extern const FFCodec ff_webvtt_encoder;
+diff --git a/libavcodec/ttmldec.c b/libavcodec/ttmldec.c
+new file mode 100644
+index 0000000000..7bdcdc1bca
+--- /dev/null
++++ b/libavcodec/ttmldec.c
+@@ -0,0 +1,711 @@
++/*
++ * TTML subtitle decoder
++ * Copyright (c) 2023 Aidan Vaughan (TheDaChicken)
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include <libxml/parser.h>
++#include "avcodec.h"
++#include "ass.h"
++#include "ttmlenc.h"
++#include "codec_internal.h"
++#include "version.h"
++#include "libavutil/bprint.h"
++#include "libavutil/parseutils.h"
++
++/**
++ * @file
++ * TTML subtitle decoder
++ * @see https://www.w3.org/TR/ttml1/
++ * @see https://www.w3.org/TR/ttml2/
++ * @see https://www.w3.org/TR/ttml-imsc/rec
++ */
++
++static const char* TTML_HEADER =
++        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
++        "<tt %s>%s</tt>";
++
++typedef struct {
++    const char* name;
++    const char* fontfamily;
++    uint8_t fontsize;
++    uint8_t bold;
++    uint8_t italic;
++    int color;
++    int backgroundColor;
++    int alignment;
++} TTMLStyle;
++
++typedef struct {
++    const char* style;
++    const char* name;
++} TTMLRegion;
++
++typedef struct {
++    xmlDocPtr doc;
++    xmlNodePtr node;
++    int readorder;
++    TTMLStyle* styles;
++    TTMLRegion* regions;
++    uint32_t style_count;
++    uint32_t region_count;
++} TTMLContext;
++
++const static TTMLStyle DEFAULT_STYLE = {
++    "Default",
++    ASS_DEFAULT_FONT, ASS_DEFAULT_FONT_SIZE,
++    ASS_DEFAULT_BOLD, ASS_DEFAULT_ITALIC,
++    ASS_DEFAULT_COLOR,
++    ASS_DEFAULT_BACK_COLOR, ASS_DEFAULT_ALIGNMENT
++};
++
++static void init_style(TTMLStyle* style) {
++    style->name = av_strdup("Default");
++    style->fontfamily = av_strdup(ASS_DEFAULT_FONT);
++    style->fontsize = ASS_DEFAULT_FONT_SIZE;
++    style->bold = ASS_DEFAULT_BOLD;
++    style->italic = ASS_DEFAULT_ITALIC;
++    style->color = ASS_DEFAULT_COLOR;
++    style->backgroundColor = ASS_DEFAULT_BACK_COLOR;
++    style->alignment = ASS_DEFAULT_ALIGNMENT;
++}
++
++/* https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-fontSize */
++static int parse_fontsize(const TTMLStyle root, const char *key) {
++    int px;
++    if(sscanf(key, "%upx", &px) == 1) return px;
++    return 0;
++}
++
++/* https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-textAlign */
++static int parse_text_align(const char *text_align) {
++    if (!strncmp(text_align, "left", 4))
++    {
++        return 1;
++    }
++    else if (!strncmp(text_align, "center", 6))
++    {
++        return 2;
++    }
++    else if (!strncmp(text_align, "right", 5))
++    {
++        return 3;
++    }
++    return 0;
++}
++
++static xmlNodePtr find_child_node_by_name(xmlNodePtr rootnode, const char *nodename)
++{
++    xmlNodePtr node = rootnode;
++    if (!node) {
++        return NULL;
++    }
++
++    node = xmlFirstElementChild(node);
++    while (node) {
++        if (!av_strcasecmp(node->name, nodename)) {
++            return node;
++        }
++        node = xmlNextElementSibling(node);
++    }
++    return NULL;
++}
++
++static TTMLStyle* get_style(AVCodecContext *avctx, const char* style_name) {
++    TTMLContext *ttml = avctx->priv_data;
++    TTMLStyle* style;
++    if(!style_name)
++        return NULL;
++
++    for(int i = 0; i < ttml->style_count; i++)
++    {
++        style = &ttml->styles[i];
++        if(style->name && !strncmp(style->name, style_name, strlen(style_name)))
++        {
++            return style;
++        }
++    }
++    return NULL;
++}
++
++static TTMLRegion* get_region(AVCodecContext *avctx, const char* region_name) {
++    TTMLContext *ttml = avctx->priv_data;
++    TTMLRegion* region;
++    if(!region_name)
++        return NULL;
++
++    for(int i = 0; i < ttml->region_count; i++)
++    {
++        region = &ttml->regions[i];
++        if(region->name && !strncmp(region->name, region_name, strlen(region_name)))
++        {
++            return region;
++        }
++    }
++    return NULL;
++}
++
++static int create_ass_header(AVCodecContext *avctx) {
++    TTMLContext *ttml = avctx->priv_data;
++    TTMLStyle* style;
++    AVBPrint buf;
++
++    av_bprint_init(&buf, 0, INT_MAX);
++    av_bprintf(&buf,
++               "[Script Info]\r\n"
++               "; Script generated by FFmpeg/Lavc%s\r\n"
++               "ScriptType: v4.00+\r\n"
++               "PlayResX: %d\r\n"
++               "PlayResY: %d\r\n"
++               "ScaledBorderAndShadow: yes\r\n"
++               "YCbCr Matrix: None\r\n"
++               "\r\n"
++               "[V4+ Styles]\r\n"
++
++               /* ASS (v4+) header */
++               "Format: Name, "
++               "Fontname, Fontsize, "
++               "PrimaryColour, SecondaryColour, OutlineColour, BackColour, "
++               "Bold, Italic, Underline, StrikeOut, "
++               "ScaleX, ScaleY, "
++               "Spacing, Angle, "
++               "BorderStyle, Outline, Shadow, "
++               "Alignment, MarginL, MarginR, MarginV, "
++               "Encoding\r\n",
++               !(avctx->flags & AV_CODEC_FLAG_BITEXACT) ? AV_STRINGIFY(LIBAVCODEC_VERSION) : "",
++               ASS_DEFAULT_PLAYRESX, ASS_DEFAULT_PLAYRESY);
++
++    for(int i = 0; i < ttml->style_count; i++)
++    {
++        style = &ttml->styles[i];
++        av_bprintf(&buf,"Style: "
++                        "%s,"                  /* Name */
++                        "%s,%d,"               /* Font{name,size} */
++                        "&H%x,&H%x,&H%x,&H%x," /* {Primary,Secondary,Outline,Back}Colour */
++                        "%d,%d,%d,0,"          /* Bold, Italic, Underline, StrikeOut */
++                        "100,100,"             /* Scale{X,Y} */
++                        "0,0,"                 /* Spacing, Angle */
++                        "%d,1,0,"              /* BorderStyle, Outline, Shadow */
++                        "%d,10,10,10,"         /* Alignment, Margin[LRV] */
++                        "1\r\n"                /* Encoding */,
++                   style->name, style->fontfamily, style->fontsize,
++                   style->color, style->color,
++                   style->backgroundColor, style->backgroundColor,
++                   style->bold, style->italic, 0,
++                   ASS_DEFAULT_BORDERSTYLE, style->alignment);
++    }
++
++    av_bprintf(&buf,
++               "\r\n"
++               "[Events]\r\n"
++               "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n");
++
++    if (!av_bprint_is_complete(&buf))
++        return AVERROR(ENOMEM);
++
++    if (!(avctx->subtitle_header =
++                  av_mallocz(buf.size)))
++        return AVERROR(ENOMEM);
++
++    avctx->subtitle_header_size = buf.len;
++    memcpy(avctx->subtitle_header, buf.str, buf.size);
++
++    av_bprint_finalize(&buf, NULL);
++    return 0;
++}
++
++/* Example: <region style="default" xml:id="speaker"></region> */
++static int parse_region(AVCodecContext *avctx, TTMLRegion* region, xmlNodePtr node) {
++    xmlAttrPtr attr = NULL;
++    xmlChar* val = NULL;
++
++    attr = node->properties;
++    while (attr) {
++        val = xmlGetProp(node, attr->name);
++
++        if(!strncmp(attr->name, "id", 2))
++        {
++            region->name = av_strdup(val);
++        }
++        else if (!strncmp(attr->name, "style", 5))
++        {
++            region->style = av_strdup(val);
++        }
++
++        attr = attr->next;
++        xmlFree(val);
++    }
++    return 0;
++}
++
++/* Example: tts:fontSize="24px" tts:fontFamily="Arial" tts:fontWeight="normal" tts:fontStyle="normal"
++ * tts:textDecoration="none" tts:color="white" tts:backgroundColor="black" tts:textAlign="center"
++ * tts:fontStyle="italic" */
++static int parse_styles(AVCodecContext *avctx, xmlNodePtr node, const TTMLStyle root_style, TTMLStyle* ttml_style) {
++    xmlAttrPtr attr = NULL;
++    xmlChar* val = NULL;
++
++
++    attr = node->properties;
++    while (attr) {
++        val = xmlGetProp(node, attr->name);
++
++        /* P tag could contain labels for subtitles.
++         * It's not a STYLE name */
++        if(!strncmp(attr->name, "id", 2) && !strncmp(node->name, "style", 5))
++        {
++            ttml_style->name = av_strdup(val);
++        }
++        else if (!strncmp(attr->name, "fontStyle", 9))
++        {
++            ttml_style->italic = (!strncmp(val, "italic", 6) ? 1 : 0);
++        }
++        else if (!strncmp(attr->name, "fontWeight", 10))
++        {
++            ttml_style->bold = (!strncmp(val, "bold", 4) ? 1 : 0);
++        }
++        else if (!strncmp(attr->name, "fontSize", 8))
++        {
++            ttml_style->fontsize = parse_fontsize(root_style, val);
++        }
++        else if (!strncmp(attr->name, "fontFamily", 8))
++        {
++            ttml_style->fontfamily = av_strdup(val);
++        }
++        else if(!strncmp(attr->name, "color", 5))
++        {
++            uint8_t rgba[4];
++            av_parse_color(rgba, val, strlen(val), avctx);
++            ttml_style->color = rgba[0] | rgba[1] << 8 | rgba[2] << 16;
++        }
++        else if(!strncmp(attr->name, "backgroundColor", 5))
++        {
++            uint8_t rgba[4];
++            av_parse_color(rgba, val, strlen(val), avctx);
++            ttml_style->backgroundColor = rgba[0] | rgba[1] << 8 | rgba[2] << 16;
++        }
++        else if(!strncmp(attr->name, "textAlign", 5))
++        {
++            ttml_style->alignment = parse_text_align(val);
++        }
++        attr = attr->next;
++        xmlFree(val);
++    }
++    return 0;
++}
++
++static int parse_header(AVCodecContext *avctx,
++                        const char* attr_data, const char* ttml_data) {
++    TTMLContext *ttml = avctx->priv_data;
++    TTMLRegion* region = NULL;
++    TTMLStyle* style = NULL;
++    xmlNodePtr head_node;
++    xmlNodePtr child_node;
++    AVBPrint buf;
++
++    av_bprint_init(&buf, 0, INT_MAX);
++    av_bprintf(&buf, TTML_HEADER,
++               attr_data, ttml_data);
++
++    ttml->doc = xmlReadMemory(buf.str, buf.len, NULL, NULL, 0);
++    ttml->node = xmlDocGetRootElement(ttml->doc);
++    if(!ttml->node)
++        return AVERROR_INVALIDDATA;
++
++    head_node = find_child_node_by_name(ttml->node, "head");
++    if(!head_node)
++        return AVERROR_INVALIDDATA;
++
++    child_node = xmlFirstElementChild(head_node);
++    while(child_node)
++    {
++        if(!strncmp(child_node->name, "styling", 7))
++        {
++            xmlNodePtr style_node;
++            uint32_t style_count = xmlChildElementCount(child_node);
++
++            /* allocate styles array */
++            ttml->styles = av_realloc_array(ttml->styles, style_count, sizeof(*ttml->styles));
++            if(!ttml->styles)
++                return AVERROR(ENOMEM);
++            ttml->style_count = 0;
++
++            for (style_node = xmlFirstElementChild(child_node); style_node != NULL;
++                 style_node = xmlNextElementSibling(style_node))
++            {
++                if(strncmp(style_node->name, "style", 5) != 0)
++                    continue;
++                style = &ttml->styles[ttml->style_count];
++                init_style(style);
++                parse_styles(avctx, style_node, DEFAULT_STYLE, style);
++                ttml->style_count++;
++            }
++        } else if(!strncmp(child_node->name, "layout", 6))
++        {
++            xmlNodePtr region_node;
++            uint32_t region_count = xmlChildElementCount(child_node);
++
++            /* allocate regions array */
++            ttml->regions = av_realloc_array(ttml->regions, region_count, sizeof(*ttml->regions));
++            if(!ttml->regions)
++                return AVERROR(ENOMEM);
++            ttml->region_count = 0;
++
++            for (region_node = xmlFirstElementChild(child_node); region_node != NULL;
++                 region_node = xmlNextElementSibling(region_node))
++            {
++                if(strncmp(region_node->name, "region", 6) != 0)
++                    continue;
++                region = &ttml->regions[ttml->region_count];
++                parse_region(avctx, region, region_node);
++                ttml->region_count++;
++            }
++        }
++
++        child_node = xmlNextElementSibling(child_node);
++    }
++
++    av_bprint_finalize(&buf, NULL);
++    return 0;
++}
++
++static int parse_header_from_extradata(AVCodecContext *avctx) {
++    const size_t base_extradata_size = TTMLENC_EXTRADATA_SIGNATURE_SIZE + 1 +
++                                       AV_INPUT_BUFFER_PADDING_SIZE;
++    if(avctx->extradata_size > base_extradata_size)
++    {
++        char *attr_data =
++                (char *)avctx->extradata + TTMLENC_EXTRADATA_SIGNATURE_SIZE;
++        size_t attr_size = av_strnlen(
++                attr_data, avctx->extradata_size - TTMLENC_EXTRADATA_SIGNATURE_SIZE);
++        char *ttml_data = attr_data+attr_size+1;
++        return parse_header(avctx, attr_data, ttml_data);
++    }
++    return AVERROR_INVALIDDATA;
++}
++
++static TTMLStyle* get_p_node_style(AVCodecContext *avctx, xmlNodePtr p_node)
++{
++    TTMLRegion* region = NULL;
++    TTMLStyle* style = NULL;
++    xmlChar* region_name;
++    xmlChar* style_name;
++
++    /* Sometimes region is defined with the style in the region */
++    region_name = xmlGetProp(p_node, "region");
++    if(region_name)
++    {
++        region = get_region(avctx, region_name);
++    }
++    style_name = xmlGetProp(p_node, "style");
++    if(style_name)
++    {
++        style = get_style(avctx, style_name);
++    }
++    else if(region)
++    {
++        style = get_style(avctx, region->style);
++    }
++
++    xmlFree(region_name);
++    xmlFree(style_name);
++    return style;
++}
++
++static int apply_ass_styles(AVBPrint* buf, const TTMLStyle new_style, const TTMLStyle root) {
++    if(new_style.italic ^ root.italic)
++    {
++        av_bprintf(buf, "{\\i%d}", new_style.italic);
++    }
++    if(new_style.bold ^ root.bold)
++    {
++        av_bprintf(buf, "{\\b%d}", new_style.bold);
++    }
++    if(new_style.color ^ root.color)
++    {
++        av_bprintf(buf, "{\\c&H%"PRIX32"&}", new_style.color & 0xffffff);
++    }
++    if(new_style.alignment != 0 && new_style.alignment ^ root.alignment)
++    {
++        av_bprintf(buf, "{\\an%d}", new_style.alignment);
++    }
++    return 0;
++}
++
++/* Example: <p style="test">Regular <span tts:fontStyle="italic">Italics</span></p> */
++static int parse_p_xml_to_ass(AVCodecContext *avctx, AVBPrint* buf,
++                              xmlNodePtr paragraph_node, const TTMLStyle root_style)
++{
++    TTMLStyle style_props = root_style;
++    xmlNodePtr child;
++    xmlChar* dupstr = NULL;
++    char* val = NULL;
++
++    /* parse extra styles that are in the node attrs */
++    parse_styles(avctx, paragraph_node, root_style, &style_props);
++    /* write extra styles that aren't a part of the root style */
++    apply_ass_styles(buf, style_props, root_style);
++
++    for(child = paragraph_node->children; child != NULL; child = child->next) {
++        if(child->type == XML_TEXT_NODE) {
++            dupstr = xmlNodeGetContent(child);
++            val = dupstr;
++
++            while (*val)
++            {
++                /* spaces as formatting can get into the way as the xml parser keeps that */
++                if (av_isspace(*val))
++                    val++;
++                else
++                    break;
++            }
++            av_bprintf(buf, "%s", val);
++            xmlFree(dupstr);
++        }
++        if(child->type != XML_ELEMENT_NODE)
++            continue;
++        if (!strncmp(child->name, "metadata", 8)) /* <metadata ccrow="13" cccol="1"/> */
++        {
++            /* This isn't in the OFFICIAL ttml docs. However, this tag is in some ttml files on certain services */
++            /* This is defined like CEA-608 cols and rows */
++            int x, y;
++            int col, row;
++            xmlChar* ccrow = xmlGetProp(child, "ccrow");
++            xmlChar* cccol = xmlGetProp(child, "cccol");
++
++            col = strtol(ccrow, (void*)&cccol, 10);
++            row = strtol(ccrow, (void*)&ccrow, 10);
++
++            x = ASS_DEFAULT_PLAYRESX * (0.1 + 0.0250 * col);
++            y = ASS_DEFAULT_PLAYRESY * (0.1 + 0.0533 * row);
++            av_bprintf(buf, "{\\pos(%d,%d)}", x, y);
++        }
++        else if (!strncmp(child->name, "br", 2))
++        {
++            av_bprintf(buf, "\\N");
++        }
++        else if (!strncmp(child->name, "span", 4)) /* Example: <span style="default" tts:fontStyle="italic"> */
++        {
++            int rested = 0;
++            /* style may get switched (most of the time yes) */
++            const TTMLStyle* new_style = get_p_node_style(avctx, child);
++            if(!new_style)
++                new_style = &root_style;
++            else if(!av_stristr(new_style->name, root_style.name)) {
++                av_bprintf(buf, "{\\r%s}", new_style->name);
++                rested = 1;
++            }
++            parse_p_xml_to_ass(avctx, buf, child, *new_style);
++            if(rested)
++            {
++                av_bprintf(buf, "{\\r%s}", root_style.name);
++            }
++        }
++    }
++
++    /* undo the special node styles */
++    apply_ass_styles(buf, root_style, style_props);
++    return 0;
++}
++
++
++static av_cold int ttml_init(AVCodecContext *avctx)
++{
++    TTMLContext *ttml = avctx->priv_data;
++    int ret = 0;
++
++    LIBXML_TEST_VERSION
++
++    if(avctx->extradata_size >= 0)
++    {
++        ret = parse_header_from_extradata(avctx);
++        if(ret < 0)
++            return ret;
++    }
++    else
++    {
++        ret = parse_header(avctx, TTML_DEFAULT_NAMESPACING, "");
++        if(ret < 0)
++            return ret;
++    }
++    if(!ttml->style_count)
++    {
++        /* set default stuff */
++        ttml->styles = av_malloc_array(1, sizeof(*ttml->styles));
++        if (!ttml->styles)
++            return AVERROR(ENOMEM);
++        init_style(&ttml->styles[0]);
++        ttml->style_count = 1;
++    }
++    return create_ass_header(avctx);
++}
++
++/**
++ * Recreate p tag for parsing.
++ * Not the best way (of course) but it ensures all data is proper using libxml2
++ */
++static int recreate_p_tag(const AVPacket *avpkt, AVBPrint* buf) {
++    size_t settings_size;
++    uint8_t* settings;
++
++    /* recreate p tag with our data for parsing */
++    av_bprintf(buf, "<p ");
++
++    settings = av_packet_get_side_data(avpkt, AV_PKT_DATA_WEBVTT_SETTINGS,
++                                       &settings_size);
++    if (settings_size > INT_MAX)
++        return AVERROR(EINVAL);
++
++    if (settings && settings_size > 0)
++        av_bprintf(buf, "%s", settings);
++
++    av_bprintf(buf, ">%s</p>", avpkt->data);
++
++    if (!av_bprint_is_complete(buf))
++        return AVERROR(ENOMEM);
++
++    return 0;
++}
++
++static int ttml_decode_frame(AVCodecContext *avctx, AVSubtitle *sub,
++                             int *got_sub_ptr, const AVPacket *avpkt)
++{
++    TTMLContext *ttml = avctx->priv_data;
++    int ret = 0;
++    TTMLStyle* style;
++    AVBPrint buf;
++    xmlChar* default_str;
++    xmlNodePtr p_node;
++
++    av_bprint_init(&buf, 0, INT_MAX);
++
++    ret = recreate_p_tag(avpkt, &buf);
++    if(ret < 0)
++        goto cleanup;
++
++    ret = xmlParseInNodeContext(ttml->node,
++                                buf.str,
++                                buf.size, 0, &p_node);
++    if(ret != XML_ERR_OK) {
++        ret = AVERROR_INVALIDDATA;
++        goto cleanup;
++    }
++
++    av_bprint_clear(&buf);
++
++    /* a way to get the default body attrs */
++    default_str = xmlGetProp(p_node, "default");
++    style = get_p_node_style(avctx, p_node);
++    if(!style && default_str) /* if there are defaults and can't find style then check defaults */
++    {
++        xmlNodePtr default_node;
++        /* recreate p tag with our data for parsing */
++        av_bprintf(&buf, "<p %s/>", default_str);
++        ret = xmlParseInNodeContext(ttml->node,
++                                    buf.str,
++                                    buf.size, 0, &default_node);
++        if(ret != XML_ERR_OK) {
++            ret = AVERROR_INVALIDDATA;
++            goto cleanup;
++        }
++        style = get_p_node_style(avctx, default_node);
++        av_bprint_clear(&buf);
++    }
++    if(!style)
++    {
++        xmlNodePtr children = p_node->children;
++        /* style may be in the first span with no text in front */
++        while(children)
++        {
++            if (children->type == XML_ELEMENT_NODE) {
++                if (strncmp(children->name, "span", 4) != 0)
++                    break;
++                style = get_p_node_style(avctx, children);
++                break;
++            } else if (children->type == XML_TEXT_NODE)
++            {
++                /* new line cant be counted as text which would need styling */
++                xmlChar* dupstr = xmlNodeGetContent(children);
++                char* val = dupstr;
++                while(*val) {
++                    if (!av_isspace(*val))
++                        break;
++                    val++;
++                }
++                xmlFree(dupstr);
++            }
++
++            children = children->next;
++        }
++        if(!style) {
++            /* this is a type of subtitle which requires some sort of style */
++            av_log(avctx, AV_LOG_ERROR, "Unable to find style data['%s']\n", avpkt->data);
++            ret = AVERROR_INVALIDDATA;
++            goto cleanup;
++        }
++    }
++
++    parse_p_xml_to_ass(avctx, &buf, p_node, *style);
++    ret = ff_ass_add_rect(sub, buf.str, ttml->readorder++, 0,
++                          style->name, NULL);
++    if (ret < 0)
++        goto cleanup;
++
++    ret = avpkt->size;
++    *got_sub_ptr = sub->num_rects > 0;
++
++    cleanup:
++    av_bprint_finalize(&buf, NULL);
++    xmlFree(p_node);
++    return ret;
++}
++
++static av_cold int ttml_close(AVCodecContext *avctx)
++{
++    TTMLContext *ttml = avctx->priv_data;
++    TTMLStyle* style;
++    TTMLRegion* region;
++    for(int i = 0; i < ttml->style_count; i++)
++    {
++        style = &ttml->styles[i];
++        av_freep(&style->name);
++        av_freep(&style->fontfamily);
++    }
++    av_freep(&ttml->styles);
++    for(int i = 0; i < ttml->region_count; i++)
++    {
++        region = &ttml->regions[i];
++        av_freep(&region->style);
++        av_freep(&region->name);
++    }
++    av_freep(&ttml->regions);
++    xmlFreeDoc(ttml->doc);
++    return 0;
++}
++
++const FFCodec ff_ttml_decoder = {
++        .p.name         = "ttml",
++        CODEC_LONG_NAME("TTML subtitle"),
++        .priv_data_size = sizeof(TTMLContext),
++        .p.type         = AVMEDIA_TYPE_SUBTITLE,
++        .p.id           = AV_CODEC_ID_TTML,
++        FF_CODEC_DECODE_SUB_CB(ttml_decode_frame),
++        .init           = ttml_init,
++        .flush          = ff_ass_decoder_flush,
++        .close          = ttml_close,
++};
+diff --git a/libavcodec/version.h b/libavcodec/version.h
+index 39dbec0208..ecb096f38b 100644
+--- a/libavcodec/version.h
++++ b/libavcodec/version.h
+@@ -29,7 +29,7 @@
+ 
+ #include "version_major.h"
+ 
+-#define LIBAVCODEC_VERSION_MINOR   6
++#define LIBAVCODEC_VERSION_MINOR   7
+ #define LIBAVCODEC_VERSION_MICRO 101
+ 
+ #define LIBAVCODEC_VERSION_INT  AV_VERSION_INT(LIBAVCODEC_VERSION_MAJOR, \
