@@ -4,7 +4,8 @@ SCRIPT_REPO="https://github.com/Brainiarc7/blackmagic-sdk.git"
 SCRIPT_COMMIT="5a93d2f3f3ff87bf690e689e165aaba8ee4812b5"
 
 ffbuild_enabled() {
-    [[ $VARIANT == nonfree* ]] || return -1
+    [[ $VARIANT == lgpl* ]] || return -1
+    [[ $VARIANT == gpl* ]] || return -1
     [[ $TARGET != linux* ]] && return -1
     [[ $TARGET == linuxarm64 ]] && return -1    
     return 0
