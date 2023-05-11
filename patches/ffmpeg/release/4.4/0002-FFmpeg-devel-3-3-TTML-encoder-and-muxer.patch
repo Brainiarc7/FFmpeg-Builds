@@ -1,0 +1,634 @@
+From patchwork Fri Dec  4 14:46:43 2020
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Patchwork-Submitter: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+X-Patchwork-Id: 24341
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+X-Original-To: patchwork@ffaux-bg.ffmpeg.org
+Delivered-To: patchwork@ffaux-bg.ffmpeg.org
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org [79.124.17.100])
+	by ffaux.localdomain (Postfix) with ESMTP id 4290E449FDE
+	for <patchwork@ffaux-bg.ffmpeg.org>; Fri,  4 Dec 2020 16:55:16 +0200 (EET)
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 2DE9368824C;
+	Fri,  4 Dec 2020 16:55:16 +0200 (EET)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com
+ [209.85.208.182])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id F25CF68A119
+ for <ffmpeg-devel@ffmpeg.org>; Fri,  4 Dec 2020 16:55:08 +0200 (EET)
+Received: by mail-lj1-f182.google.com with SMTP id j10so6922764lja.5
+ for <ffmpeg-devel@ffmpeg.org>; Fri, 04 Dec 2020 06:55:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+ :content-transfer-encoding;
+ bh=qAF7hutXkErcqJK5+uJj5njwp0F5NWa/OYdYrSn04Do=;
+ b=AOxADKrUEKn2BzOJbtvaEw+de+rpdrYZomlWv5wbtvzo5DZM0wwsao1vZX1oK9jotc
+ qagmpXmhdzLtlub44FariXgMTdLUo/HHCDQ6lLso4JEho46nogeyMj5uRUoUlEPjP6CO
+ frHNc2eqjZTdOsB9M6itS1q9Ok1uZnnwC69PDSxNV2r+PJB0MRi6N9qK1JMp/J17ZsMo
+ 0btndlyT+GTl5g2sbtiKJGdSj3nojejdzJtsCKC1JJj8ilma6CAWiL7UaDQLtN4oJozs
+ PXL9NUjZo2MceicP4USrMpjQvDtw5entpSmUBdbz0qiR0xfV6BtRs8YTxZ745pgB9lvK
+ es1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=qAF7hutXkErcqJK5+uJj5njwp0F5NWa/OYdYrSn04Do=;
+ b=YTlvyvURN7ToiQD92prfN9WE+t0SzwMVrdNy+mL7TJh+tjbn0QNRZRLJMerUviMUnm
+ N0ow3h755CnIHkVDITuqojGDoSzC0mq4DoskuNuXY9Z5BFd8fr1cFuEhaqBqF/UHNbpc
+ NrUDT75i1fNHxw5adRI87m5cr1bvCV8byEhQCfX+XcXkFjcXdoe6W+wDFF3gB39PWN5M
+ LsbM8RrVlJEutmRDUC63aSOCp40aubhxd5OsEmHijcta5x93S1v9eC8LZwcKtyCzoSLR
+ R6b5QfLOBHTxV2De5vrxl+DNjm71/XcsNnh4Y8tMn2+Z6ZuBnNBg/C9w7bMiOGiabunE
+ nqRg==
+X-Gm-Message-State: AOAM531Zbjz/B86OkDDkzciqfYEY8FYBwvB3UMtHToiJNGXbw1Bix2Xn
+ m1kbaW2r3xmIMj1E0sKft6od6qhFgxrlLA==
+X-Google-Smtp-Source: 
+ ABdhPJz33obzAjn4RqAJKhsv88DRaTywJUgOnciq9jjWYJNOhVAkC9aeYRopaS4+8prPnG57FKMOtA==
+X-Received: by 2002:a05:6512:33b9:: with SMTP id
+ i25mr3402652lfg.526.1607093209809;
+ Fri, 04 Dec 2020 06:46:49 -0800 (PST)
+Received: from localhost.localdomain (91-159-194-103.elisa-laajakaista.fi.
+ [91.159.194.103])
+ by smtp.gmail.com with ESMTPSA id t2sm1750308lfd.59.2020.12.04.06.46.48
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 04 Dec 2020 06:46:49 -0800 (PST)
+From: =?utf-8?q?Jan_Ekstr=C3=B6m?= <jeebjp@gmail.com>
+To: ffmpeg-devel@ffmpeg.org
+Date: Fri,  4 Dec 2020 16:46:43 +0200
+Message-Id: <20201204144643.73279-4-jeebjp@gmail.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201204144643.73279-1-jeebjp@gmail.com>
+References: <20201204144643.73279-1-jeebjp@gmail.com>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH 3/3] TTML encoder and muxer
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.20
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+
+From: Jan Ekström <jan.ekstrom@24i.com>
+
+Enables encoding of other subtitle formats into TTML and writing
+them out as such documents.
+
+Signed-off-by: Jan Ekström <jan.ekstrom@24i.com>
+---
+ Changelog                  |   1 +
+ doc/general_contents.texi  |   1 +
+ libavcodec/Makefile        |   1 +
+ libavcodec/allcodecs.c     |   1 +
+ libavcodec/ttmlenc.c       | 154 +++++++++++++++++++++++++++++++++++++
+ libavcodec/version.h       |   2 +-
+ libavformat/Makefile       |   1 +
+ libavformat/allformats.c   |   1 +
+ libavformat/ttmlenc.c      | 123 +++++++++++++++++++++++++++++
+ libavformat/version.h      |   2 +-
+ tests/fate/subtitles.mak   |   3 +
+ tests/ref/fate/sub-ttmlenc | 122 +++++++++++++++++++++++++++++
+ 12 files changed, 410 insertions(+), 2 deletions(-)
+ create mode 100644 libavcodec/ttmlenc.c
+ create mode 100644 libavformat/ttmlenc.c
+ create mode 100644 tests/ref/fate/sub-ttmlenc
+
+diff --git a/Changelog b/Changelog
+index ebb1727875..71476eb366 100644
+--- a/Changelog
++++ b/Changelog
+@@ -48,6 +48,7 @@ version <next>:
+ - speechnorm filter
+ - SpeedHQ encoder
+ - asupercut filter
++- TTML subtitle encoder and muxer
+ 
+ 
+ version 4.3:
+diff --git a/doc/general_contents.texi b/doc/general_contents.texi
+index 1be6f9b683..dca183e9ca 100644
+--- a/doc/general_contents.texi
++++ b/doc/general_contents.texi
+@@ -1332,6 +1332,7 @@ performance on systems without hardware floating point support).
+ @item SubViewer v1     @tab   @tab X @tab   @tab X
+ @item SubViewer        @tab   @tab X @tab   @tab X
+ @item TED Talks captions @tab @tab X @tab   @tab X
++@item TTML             @tab X @tab   @tab X @tab
+ @item VobSub (IDX+SUB) @tab   @tab X @tab   @tab X
+ @item VPlayer          @tab   @tab X @tab   @tab X
+ @item WebVTT           @tab X @tab X @tab X @tab X
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index a6435c9e85..9d2b62a263 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -665,6 +665,7 @@ OBJS-$(CONFIG_TSCC_DECODER)            += tscc.o msrledec.o
+ OBJS-$(CONFIG_TSCC2_DECODER)           += tscc2.o
+ OBJS-$(CONFIG_TTA_DECODER)             += tta.o ttadata.o ttadsp.o
+ OBJS-$(CONFIG_TTA_ENCODER)             += ttaenc.o ttaencdsp.o ttadata.o
++OBJS-$(CONFIG_TTML_ENCODER)            += ttmlenc.o ass_split.o
+ OBJS-$(CONFIG_TWINVQ_DECODER)          += twinvqdec.o twinvq.o
+ OBJS-$(CONFIG_TXD_DECODER)             += txd.o
+ OBJS-$(CONFIG_ULTI_DECODER)            += ulti.o
+diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+index 774d5670bf..b12538905b 100644
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -685,6 +685,7 @@ extern AVCodec ff_subviewer_decoder;
+ extern AVCodec ff_subviewer1_decoder;
+ extern AVCodec ff_text_encoder;
+ extern AVCodec ff_text_decoder;
++extern AVCodec ff_ttml_encoder;
+ extern AVCodec ff_vplayer_decoder;
+ extern AVCodec ff_webvtt_encoder;
+ extern AVCodec ff_webvtt_decoder;
+diff --git a/libavcodec/ttmlenc.c b/libavcodec/ttmlenc.c
+new file mode 100644
+index 0000000000..7eb89e73f4
+--- /dev/null
++++ b/libavcodec/ttmlenc.c
+@@ -0,0 +1,154 @@
++/*
++ * TTML subtitle encoder
++ * Copyright (c) 2020 24i
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/**
++ * @file
++ * TTML subtitle encoder
++ * @see https://www.w3.org/TR/ttml1/
++ * @see https://www.w3.org/TR/ttml2/
++ * @see https://www.w3.org/TR/ttml-imsc/rec
++ */
++
++#include "avcodec.h"
++#include "libavutil/avstring.h"
++#include "libavutil/bprint.h"
++#include "ass_split.h"
++#include "ass.h"
++
++typedef struct {
++    AVCodecContext *avctx;
++    ASSSplitContext *ass_ctx;
++    AVBPrint buffer;
++} TTMLContext;
++
++static void ttml_text_cb(void *priv, const char *text, int len)
++{
++    TTMLContext *s = priv;
++    AVBPrint cur_line = { 0 };
++    AVBPrint *buffer = &s->buffer;
++
++    av_bprint_init(&cur_line, len, AV_BPRINT_SIZE_UNLIMITED);
++
++    av_bprint_append_data(&cur_line, text, len);
++    if (!av_bprint_is_complete(&cur_line)) {
++        av_log(s->avctx, AV_LOG_ERROR,
++               "Failed to move the current subtitle dialog to AVBPrint!\n");
++        av_bprint_finalize(&cur_line, NULL);
++        return;
++    }
++
++
++    av_bprint_escape(buffer, cur_line.str, NULL, AV_ESCAPE_MODE_XML, 0);
++
++    av_bprint_finalize(&cur_line, NULL);
++}
++
++static void ttml_new_line_cb(void *priv, int forced)
++{
++    TTMLContext *s = priv;
++
++    av_bprintf(&s->buffer, "<br/>");
++}
++
++static const ASSCodesCallbacks ttml_callbacks = {
++    .text             = ttml_text_cb,
++    .new_line         = ttml_new_line_cb,
++};
++
++static int ttml_encode_frame(AVCodecContext *avctx, uint8_t *buf,
++                             int bufsize, const AVSubtitle *sub)
++{
++    TTMLContext *s = avctx->priv_data;
++    ASSDialog *dialog;
++    int i;
++
++    av_bprint_clear(&s->buffer);
++
++    for (i=0; i<sub->num_rects; i++) {
++        const char *ass = sub->rects[i]->ass;
++
++        if (sub->rects[i]->type != SUBTITLE_ASS) {
++            av_log(avctx, AV_LOG_ERROR, "Only SUBTITLE_ASS type supported.\n");
++            return AVERROR(ENOSYS);
++        }
++
++#if FF_API_ASS_TIMING
++        if (!strncmp(ass, "Dialogue: ", 10)) {
++            int num;
++            dialog = ff_ass_split_dialog(s->ass_ctx, ass, 0, &num);
++
++            for (; dialog && num--; dialog++) {
++                ff_ass_split_override_codes(&ttml_callbacks, s, dialog->text);
++            }
++        } else {
++#endif
++            dialog = ff_ass_split_dialog2(s->ass_ctx, ass);
++            if (!dialog)
++                return AVERROR(ENOMEM);
++
++            ff_ass_split_override_codes(&ttml_callbacks, s, dialog->text);
++            ff_ass_free_dialog(&dialog);
++#if FF_API_ASS_TIMING
++        }
++#endif
++    }
++
++    if (!av_bprint_is_complete(&s->buffer))
++        return AVERROR(ENOMEM);
++    if (!s->buffer.len)
++        return 0;
++
++    if (s->buffer.len > bufsize) {
++        av_log(avctx, AV_LOG_ERROR, "Buffer too small for ASS event.\n");
++        return -1;
++    }
++    memcpy(buf, s->buffer.str, s->buffer.len);
++
++    return s->buffer.len;
++}
++
++static av_cold int ttml_encode_close(AVCodecContext *avctx)
++{
++    TTMLContext *s = avctx->priv_data;
++    ff_ass_split_free(s->ass_ctx);
++    av_bprint_finalize(&s->buffer, NULL);
++    return 0;
++}
++
++static av_cold int ttml_encode_init(AVCodecContext *avctx)
++{
++    TTMLContext *s = avctx->priv_data;
++    s->avctx = avctx;
++    s->ass_ctx = ff_ass_split(avctx->subtitle_header);
++    av_bprint_init(&s->buffer, 0, AV_BPRINT_SIZE_UNLIMITED);
++    return s->ass_ctx ? 0 : AVERROR_INVALIDDATA;
++}
++
++AVCodec ff_ttml_encoder = {
++    .name           = "ttml",
++    .long_name      = NULL_IF_CONFIG_SMALL("TTML subtitle"),
++    .type           = AVMEDIA_TYPE_SUBTITLE,
++    .id             = AV_CODEC_ID_TTML,
++    .priv_data_size = sizeof(TTMLContext),
++    .init           = ttml_encode_init,
++    .encode_sub     = ttml_encode_frame,
++    .close          = ttml_encode_close,
++};
+diff --git a/libavcodec/version.h b/libavcodec/version.h
+index e4b81da7cb..4ee221b7f2 100644
+--- a/libavcodec/version.h
++++ b/libavcodec/version.h
+@@ -28,7 +28,7 @@
+ #include "libavutil/version.h"
+ 
+ #define LIBAVCODEC_VERSION_MAJOR  58
+-#define LIBAVCODEC_VERSION_MINOR 114
++#define LIBAVCODEC_VERSION_MINOR 115
+ #define LIBAVCODEC_VERSION_MICRO 100
+ 
+ #define LIBAVCODEC_VERSION_INT  AV_VERSION_INT(LIBAVCODEC_VERSION_MAJOR, \
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index be5a482b01..cbf9de0fc6 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -542,6 +542,7 @@ OBJS-$(CONFIG_TRUEHD_DEMUXER)            += rawdec.o mlpdec.o
+ OBJS-$(CONFIG_TRUEHD_MUXER)              += rawenc.o
+ OBJS-$(CONFIG_TTA_DEMUXER)               += tta.o apetag.o img2.o
+ OBJS-$(CONFIG_TTA_MUXER)                 += ttaenc.o apetag.o img2.o
++OBJS-$(CONFIG_TTML_MUXER)                += ttmlenc.o
+ OBJS-$(CONFIG_TTY_DEMUXER)               += tty.o sauce.o
+ OBJS-$(CONFIG_TY_DEMUXER)                += ty.o
+ OBJS-$(CONFIG_TXD_DEMUXER)               += txd.o
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index 53e5374255..ce0ff0e2d3 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -441,6 +441,7 @@ extern AVInputFormat  ff_truehd_demuxer;
+ extern AVOutputFormat ff_truehd_muxer;
+ extern AVInputFormat  ff_tta_demuxer;
+ extern AVOutputFormat ff_tta_muxer;
++extern AVOutputFormat ff_ttml_muxer;
+ extern AVInputFormat  ff_txd_demuxer;
+ extern AVInputFormat  ff_tty_demuxer;
+ extern AVInputFormat  ff_ty_demuxer;
+diff --git a/libavformat/ttmlenc.c b/libavformat/ttmlenc.c
+new file mode 100644
+index 0000000000..6ba248ee30
+--- /dev/null
++++ b/libavformat/ttmlenc.c
+@@ -0,0 +1,123 @@
++/*
++ * TTML subtitle muxer
++ * Copyright (c) 2020 24i
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/**
++ * @file
++ * TTML subtitle muxer
++ * @see https://www.w3.org/TR/ttml1/
++ * @see https://www.w3.org/TR/ttml2/
++ * @see https://www.w3.org/TR/ttml-imsc/rec
++ */
++
++#include "avformat.h"
++#include "internal.h"
++
++static const char ttml_header_text[] =
++"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
++"<tt\n"
++"  xmlns=\"http://www.w3.org/ns/ttml\"\n"
++"  xmlns:ttm=\"http://www.w3.org/ns/ttml#metadata\"\n"
++"  xmlns:tts=\"http://www.w3.org/ns/ttml#styling\"\n"
++"  xml:lang=\"%s\">\n"
++"  <body>\n"
++"    <div>\n";
++
++static const char ttml_footer_text[] =
++"    </div>\n"
++"  </body>\n"
++"</tt>\n";
++
++static void ttml_write_time(AVIOContext *pb, const char tag[],
++                            int64_t millisec)
++{
++    int64_t sec, min, hour;
++    sec = millisec / 1000;
++    millisec -= 1000 * sec;
++    min = sec / 60;
++    sec -= 60 * min;
++    hour = min / 60;
++    min -= 60 * hour;
++
++    avio_printf(pb, "%s=\"%02"PRId64":%02"PRId64":%02"PRId64".%03"PRId64"\"",
++                tag, hour, min, sec, millisec);
++}
++
++static int ttml_write_header(AVFormatContext *ctx)
++{
++    if (ctx->nb_streams != 1 ||
++        ctx->streams[0]->codecpar->codec_id != AV_CODEC_ID_TTML) {
++        av_log(ctx, AV_LOG_ERROR, "Exactly one TTML stream is required!\n");
++        return AVERROR(EINVAL);
++    }
++
++    {
++        AVStream     *s = ctx->streams[0];
++        AVIOContext *pb = ctx->pb;
++
++        AVDictionaryEntry *lang = av_dict_get(s->metadata, "language", NULL, 0);
++        const char *printed_lang = (lang && lang->value) ? lang->value : "";
++
++        avpriv_set_pts_info(s, 64, 1, 1000);
++
++        avio_printf(pb, ttml_header_text, printed_lang);
++
++        avio_flush(pb);
++    }
++
++    return 0;
++}
++
++static int ttml_write_packet(AVFormatContext *ctx, AVPacket *pkt)
++{
++    AVIOContext  *pb = ctx->pb;
++
++    avio_printf(pb,     "      <p\n");
++    ttml_write_time(pb, "        begin", pkt->pts);
++    avio_printf(pb, "\n");
++    ttml_write_time(pb, "        end",   pkt->pts + pkt->duration);
++    avio_printf(pb, ">");
++    avio_write(pb, pkt->data, pkt->size);
++    avio_printf(pb, "</p>\n");
++
++    return 0;
++}
++
++static int ttml_write_trailer(AVFormatContext *ctx)
++{
++    AVIOContext  *pb = ctx->pb;
++
++    avio_printf(pb, ttml_footer_text);
++    avio_flush(pb);
++
++    return 0;
++}
++
++AVOutputFormat ff_ttml_muxer = {
++    .name              = "ttml",
++    .long_name         = NULL_IF_CONFIG_SMALL("TTML subtitle"),
++    .extensions        = "ttml",
++    .mime_type         = "text/ttml",
++    .flags             = AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS | AVFMT_TS_NONSTRICT,
++    .subtitle_codec    = AV_CODEC_ID_TTML,
++    .write_header      = ttml_write_header,
++    .write_packet      = ttml_write_packet,
++    .write_trailer     = ttml_write_trailer,
++};
+diff --git a/libavformat/version.h b/libavformat/version.h
+index ddcca9ae50..b43193bcb1 100644
+--- a/libavformat/version.h
++++ b/libavformat/version.h
+@@ -32,7 +32,7 @@
+ // Major bumping may affect Ticket5467, 5421, 5451(compatibility with Chromium)
+ // Also please add any ticket numbers that you believe might be affected here
+ #define LIBAVFORMAT_VERSION_MAJOR  58
+-#define LIBAVFORMAT_VERSION_MINOR  64
++#define LIBAVFORMAT_VERSION_MINOR  65
+ #define LIBAVFORMAT_VERSION_MICRO 100
+ 
+ #define LIBAVFORMAT_VERSION_INT AV_VERSION_INT(LIBAVFORMAT_VERSION_MAJOR, \
+diff --git a/tests/fate/subtitles.mak b/tests/fate/subtitles.mak
+index 6323d0f93d..ee65afe35b 100644
+--- a/tests/fate/subtitles.mak
++++ b/tests/fate/subtitles.mak
+@@ -106,6 +106,9 @@ fate-sub-scc: CMD = fmtstdout ass -ss 57 -i $(TARGET_SAMPLES)/sub/witch.scc
+ FATE_SUBTITLES-$(call ALLYES, MPEGTS_DEMUXER DVBSUB_DECODER DVBSUB_ENCODER) += fate-sub-dvb
+ fate-sub-dvb: CMD = framecrc -i $(TARGET_SAMPLES)/sub/dvbsubtest_filter.ts -map s:0 -c dvbsub
+ 
++FATE_SUBTITLES-$(call ALLYES, FILE_PROTOCOL PIPE_PROTOCOL SRT_DEMUXER SUBRIP_DECODER TTML_ENCODER TTML_MUXER) += fate-sub-ttmlenc
++fate-sub-ttmlenc: CMD = fmtstdout ttml -i $(TARGET_SAMPLES)/sub/SubRip_capability_tester.srt
++
+ FATE_SUBTITLES-$(call ENCMUX, ASS, ASS) += $(FATE_SUBTITLES_ASS-yes)
+ FATE_SUBTITLES += $(FATE_SUBTITLES-yes)
+ 
+diff --git a/tests/ref/fate/sub-ttmlenc b/tests/ref/fate/sub-ttmlenc
+new file mode 100644
+index 0000000000..624f37d092
+--- /dev/null
++++ b/tests/ref/fate/sub-ttmlenc
+@@ -0,0 +1,122 @@
++<?xml version="1.0" encoding="utf-8"?>
++<tt
++  xmlns="http://www.w3.org/ns/ttml"
++  xmlns:ttm="http://www.w3.org/ns/ttml#metadata"
++  xmlns:tts="http://www.w3.org/ns/ttml#styling"
++  xml:lang="">
++  <body>
++    <div>
++      <p
++        begin="00:00:00.000"
++        end="00:00:00.000">Don&apos;t show this text it may be used to insert hidden data</p>
++      <p
++        begin="00:00:01.500"
++        end="00:00:04.500">SubRip subtitles capability tester 1.3o by ale5000<br/>Use VLC 1.1 or higher as reference for most things and MPC Home Cinema for others<br/>This text should be blue<br/>This text should be red<br/>This text should be black<br/>If you see this with the normal font, the player don&apos;t (fully) support font face</p>
++      <p
++        begin="00:00:04.500"
++        end="00:00:04.500">Hidden</p>
++      <p
++        begin="00:00:04.501"
++        end="00:00:07.500">This text should be small<br/>This text should be normal<br/>This text should be big</p>
++      <p
++        begin="00:00:07.501"
++        end="00:00:11.500">This should be an E with an accent: È<br/>日本語<br/>This text should be bold, italics and underline<br/>This text should be small and green<br/>This text should be small and red<br/>This text should be big and brown</p>
++      <p
++        begin="00:00:11.501"
++        end="00:00:14.500">This line should be bold<br/>This line should be italics<br/>This line should be underline<br/>This line should be strikethrough<br/>Both lines<br/>should be underline</p>
++      <p
++        begin="00:00:14.501"
++        end="00:00:17.500">&gt;<br/>It would be a good thing to<br/>hide invalid html tags that are closed and show the text in them<br/>but show un-closed invalid html tags<br/>Show not opened tags<br/>&lt;</p>
++      <p
++        begin="00:00:17.501"
++        end="00:00:20.500">and also<br/>hide invalid html tags with parameters that are closed and show the text in them<br/>but show un-closed invalid html tags<br/>This text should be showed underlined without problems also: 2&lt;3,5&gt;1,4&lt;6<br/>This shouldn&apos;t be underlined</p>
++      <p
++        begin="00:00:20.501"
++        end="00:00:21.500">This text should be in the normal position...</p>
++      <p
++        begin="00:00:21.501"
++        end="00:00:22.500">This text should NOT be in the normal position</p>
++      <p
++        begin="00:00:22.501"
++        end="00:00:24.500">Implementation is the same of the ASS tag<br/>This text should be at the<br/>top and horizontally centered</p>
++      <p
++        begin="00:00:22.501"
++        end="00:00:24.500">This text should be at the<br/>middle and horizontally centered</p>
++      <p
++        begin="00:00:22.501"
++        end="00:00:24.500">This text should be at the<br/>bottom and horizontally centered</p>
++      <p
++        begin="00:00:24.501"
++        end="00:00:26.500">This text should be at the<br/>top and horizontally at the left</p>
++      <p
++        begin="00:00:24.501"
++        end="00:00:26.500">This text should be at the<br/>middle and horizontally at the left<br/>(The second position must be ignored)</p>
++      <p
++        begin="00:00:24.501"
++        end="00:00:26.500">This text should be at the<br/>bottom and horizontally at the left</p>
++      <p
++        begin="00:00:26.501"
++        end="00:00:28.500">This text should be at the<br/>top and horizontally at the right</p>
++      <p
++        begin="00:00:26.501"
++        end="00:00:28.500">This text should be at the<br/>middle and horizontally at the right</p>
++      <p
++        begin="00:00:26.501"
++        end="00:00:28.500">This text should be at the<br/>bottom and horizontally at the right</p>
++      <p
++        begin="00:00:28.501"
++        end="00:00:31.500">This could be the most difficult thing to implement</p>
++      <p
++        begin="00:00:31.501"
++        end="00:00:50.500">First text</p>
++      <p
++        begin="00:00:33.500"
++        end="00:00:35.500">Second, it shouldn&apos;t overlap first</p>
++      <p
++        begin="00:00:35.501"
++        end="00:00:37.500">Third, it should replace second</p>
++      <p
++        begin="00:00:36.501"
++        end="00:00:50.500">Fourth, it shouldn&apos;t overlap first and third</p>
++      <p
++        begin="00:00:40.501"
++        end="00:00:45.500">Fifth, it should replace third</p>
++      <p
++        begin="00:00:45.501"
++        end="00:00:50.500">Sixth, it shouldn&apos;t be<br/>showed overlapped</p>
++      <p
++        begin="00:00:50.501"
++        end="00:00:52.500">TEXT 1 (bottom)</p>
++      <p
++        begin="00:00:50.501"
++        end="00:00:52.500">text 2</p>
++      <p
++        begin="00:00:52.501"
++        end="00:00:54.500">Hide these tags:<br/>also hide these tags:<br/>but show this: {normal text}</p>
++      <p
++        begin="00:00:54.501"
++        end="00:01:00.500"><br/>\ N is a forced line break<br/>\ h is a hard space<br/>Normal spaces at the start and at the end of the line are trimmed while hard spaces are not trimmed.<br/>The\hline\hwill\hnever\hbreak\hautomatically\hright\hbefore\hor\hafter\ha\hhard\hspace.\h:-D</p>
++      <p
++        begin="00:00:54.501"
++        end="00:00:56.500"><br/>\h\h\h\h\hA (05 hard spaces followed by a letter)<br/>A (Normal  spaces followed by a letter)<br/>A (No hard spaces followed by a letter)</p>
++      <p
++        begin="00:00:56.501"
++        end="00:00:58.500">\h\h\h\h\hA (05 hard spaces followed by a letter)<br/>A (Normal  spaces followed by a letter)<br/>A (No hard spaces followed by a letter)<br/>Show this: \TEST and this: \-)</p>
++      <p
++        begin="00:00:58.501"
++        end="00:01:00.500"><br/>A letter followed by 05 hard spaces: A\h\h\h\h\h<br/>A letter followed by normal  spaces: A<br/>A letter followed by no hard spaces: A<br/>05 hard  spaces between letters: A\h\h\h\h\hA<br/>5 normal spaces between letters: A     A<br/><br/>^--Forced line break</p>
++      <p
++        begin="00:01:00.501"
++        end="00:01:02.500">Both line should be strikethrough,<br/>yes.<br/>Correctly closed tags<br/>should be hidden.</p>
++      <p
++        begin="00:01:02.501"
++        end="00:01:04.500">It shouldn&apos;t be strikethrough,<br/>not opened tag showed as text.<br/>Not opened tag showed as text.</p>
++      <p
++        begin="00:01:04.501"
++        end="00:01:06.500">Three lines should be strikethrough,<br/>yes.<br/>Not closed tags showed as text</p>
++      <p
++        begin="00:01:06.501"
++        end="00:01:08.500">Both line should be strikethrough but<br/>the wrong closing tag should be showed</p>
++    </div>
++  </body>
++</tt>
