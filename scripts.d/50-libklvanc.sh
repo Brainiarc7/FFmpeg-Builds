@@ -5,6 +5,7 @@ SCRIPT_COMMIT="87d952517a1db2030b100bf05ed6112e6ff56795"
 
 ffbuild_enabled() {
     [[ $VARIANT == lgpl* ]] || return -1
+    [[ $VARIANT == gpl* ]] || return -1
     [[ $TARGET != linux* ]] && return -1
     [[ $TARGET == linuxarm64 ]] && return -1
     return 0
