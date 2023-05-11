@@ -8,6 +8,8 @@ ffbuild_enabled() {
     [[ $ADDINS_STR == *4.4* ]] && return -1
     [[ $ADDINS_STR == *5.0* ]] && return -1
     [[ $ADDINS_STR == *5.1* ]] && return -1
+    [[ $ADDINS_STR == *6.0* ]] && return -1
+    [[ $ADDINS_STR == *.* ]] && return -1
     return 0
 }
 
@@ -26,7 +28,7 @@ ffbuild_dockerbuild() {
 }
 
 ffbuild_configure() {
-    echo --enable-chromaprint
+    echo --disable-chromaprint
 }
 
 ffbuild_unconfigure() {
