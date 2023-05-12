@@ -1,0 +1,75 @@
+diff --git a/libavformat/segment.c b/libavformat/segment.c
+index 2a82f39..10f774b 100644
+--- a/libavformat/segment.c
++++ b/libavformat/segment.c
+@@ -201,11 +201,68 @@ static int set_segment_filename(AVFormatContext *s)
+     if (seg->segment_idx_wrap)
+         seg->segment_idx %= seg->segment_idx_wrap;
+     if (seg->use_strftime) {
++        int64_t unow;
+         time_t now0;
+         struct tm *tm, tmpbuf;
+-        time(&now0);
++        const char *begin;
++        const char *tmp;
++        const char *fmt_begin = s->url;
++        char fmt_buf[256];
++        int len;
++        int div;
++
++        strncpy(fmt_buf, s->url, sizeof(fmt_buf) - 1);
++        unow = av_gettime();
++        now0  = unow / 1000000;
++        // time(&now0);
+         tm = localtime_r(&now0, &tmpbuf);
+-        if (!strftime(buf, sizeof(buf), s->url, tm)) {
++
++        // manually parse format for %N (fractional seconds)
++        // (derived from libavfilter/vf_drawtext.c)
++        begin = s->url;
++        while ((begin = strchr(begin, '%'))) {
++            tmp = begin + 1;
++            len = 0;
++
++            // skip escaped "%%"
++            if (*tmp == '%') {
++                begin = tmp + 1;
++                continue;
++            }
++
++            // count digits between % and possible N
++            while (*tmp != '\0' && av_isdigit((int)*tmp)) {
++                len++;
++                tmp++;
++            }
++
++            // N encountered, insert time
++            if (*tmp == 'N') {
++                int num_digits = 3; // default show millisecond [1,6]
++
++                // if digit given, expect [1,6], warn & clamp otherwise
++                if (len == 1) {
++                    num_digits = av_clip(*(begin + 1) - '0', 1, 6);
++                } else if (len > 1) {
++                    av_log(oc, AV_LOG_WARNING, "Invalid number of decimals for %%N, using default of %i\n", num_digits);
++                }
++
++                len += 2; // add % and N to get length of string part
++
++                div = pow(10, 6 - num_digits);
++
++                snprintf(fmt_buf, sizeof(fmt_buf), "%.*s%0*d", (int)(begin - fmt_begin), fmt_begin, num_digits, (int)(unow % 1000000) / div);
++
++                begin += len;
++                fmt_begin = begin;
++
++                continue;
++            }
++            begin = tmp;
++        }
++
++
++        if (!strftime(buf, sizeof(buf), fmt_buf, tm)) {
+             av_log(oc, AV_LOG_ERROR, "Could not get segment filename with strftime\n");
+             return AVERROR(EINVAL);
+         }
