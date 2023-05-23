@@ -1,0 +1,15 @@
+ libavformat/flvdec.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libavformat/flvdec.c b/libavformat/flvdec.c
+index 4875047..9d5767b 100644
+--- a/libavformat/flvdec.c
++++ b/libavformat/flvdec.c
+@@ -905,5 +905,6 @@ AVInputFormat ff_flv_demuxer = {
+     .read_seek      = flv_read_seek,
+     .read_close     = flv_read_close,
+     .extensions     = "flv",
++    .flags          = AVFMT_TS_DISCONT,
+     .priv_class     = &class,
+ };
+
