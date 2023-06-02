@@ -21,22 +21,22 @@ ffbuild_dockerbuild() {
 
     if [[ $TARGET == win64 ]]; then
         myconf+=(
-            make CROSS_COMPILE="x86_64-w64-mingw64-" INC=-I$FFBUILD_CROSS_PREFIX/include:-I$FFBUILD_PREFIX/include
+            make CROSS_COMPILE="x86_64-w64-mingw64-" INC=-I$FFBUILD_PREFIX/include
             mingw64
         )
     elif [[ $TARGET == win32 ]]; then
         myconf+=(
-            make CROSS_COMPILE="i686-w64-mingw32-" INC=-I$FFBUILD_CROSS_PREFIX/include:-I$FFBUILD_PREFIX/include
+            make CROSS_COMPILE="i686-w64-mingw32-" INC=-I$FFBUILD_PREFIX/include
             mingw
         )
     elif [[ $TARGET == linux64 ]]; then
         myconf+=(
-            make CROSS_COMPILE="x86_64-linux-gnu" INC=-I$FFBUILD_CROSS_PREFIX/include:-I$FFBUILD_PREFIX/include
+            make CROSS_COMPILE="x86_64-linux-gnu" INC=-I$FFBUILD_PREFIX/include
             linux-x86_64
         )
     elif [[ $TARGET == linuxarm64 ]]; then
         myconf+=(
-            make CROSS_COMPILE="aarch64-linux-gnu-" INC=-I$FFBUILD_CROSS_PREFIX/include:-I$FFBUILD_PREFIX/include
+            make CROSS_COMPILE="aarch64-linux-gnu-" INC=-I$FFBUILD_PREFIX/include
             linux-aarch64
         )
     else
