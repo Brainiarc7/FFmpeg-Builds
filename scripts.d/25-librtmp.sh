@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_REPO="https://github.com/openssl/openssl.git"
-SCRIPT_COMMIT="12ad22dd16ffe47f8cde3cddb84a160e8cdb3e30"
+SCRIPT_REPO="https://github.com/ossrs/librtmp.git"
+SCRIPT_COMMIT="f1b83c10d8beb43fcc70a6e88cf4325499f25857"
 
 ffbuild_enabled() {
     return 0
