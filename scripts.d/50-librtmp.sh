@@ -16,6 +16,7 @@ ffbuild_dockerbuild() {
         LDFLAGS=-L$FFBUILD_PREFIX/lib
         SHARED= SO_INST= CRYPTO=OPENSSL
         --prefix="$FFBUILD_PREFIX"
+        XLIBS="-ldl -lz -lm"
     )
 
     if [[ $TARGET == win64 ]]; then
