@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_REPO="https://github.com/JudgeZarbi/RTMPDump-OpenSSL-1.1.git"
-SCRIPT_COMMIT="019592918b0f961104eaf71b56c1db0fa26ed497"
+SCRIPT_REPO="https://github.com/openssl/openssl.git"
+SCRIPT_COMMIT="12ad22dd16ffe47f8cde3cddb84a160e8cdb3e30"
 
 ffbuild_enabled() {
     return 0
