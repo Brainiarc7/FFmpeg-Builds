@@ -14,39 +14,27 @@ ffbuild_dockerbuild() {
 #reference :  http://pcloadletter.co.uk/2011/12/30/compiling-ffmpeg-0-9-with-librtmp/
     sed -i.bak -e '/^LIB_OPENSSL\=/s/lcrypto/lcrypto \-ldl/' Makefile
 
-    local myconf=(
-        SHARED= SO_INST= CRYPTO=OPENSSL
-        prefix="$FFBUILD_PREFIX"
-        CFLAGS=-I$FFBUILD_PREFIX/include
-        LDFLAGS=-L$FFBUILD_PREFIX/lib
-        XLIBS="-ldl -lm -lz"
-        INC=-I$FFBUILD_PREFIX/include
-
-    )
 
     if [[ $TARGET == win64 ]]; then
-        myconf+=(
-            make SYS=mingw64
-            
-        )
+
+            make -j$(nproc) SYS=mingw64 SHARED= SO_INST= CRYPTO=OPENSSL prefix="$FFBUILD_PREFIX" CFLAGS=-I$FFBUILD_PREFIX/include LDFLAGS=-L$FFBUILD_PREFIX/lib XLIBS="-ldl -lm -lz" INC=-I$FFBUILD_PREFIX/include
+            make install
+
     elif [[ $TARGET == win32 ]]; then
-        myconf+=(
-            make SYS=mingw
-            
-        )
+
+            make -j$(nproc) SYS=mingw SHARED= SO_INST= CRYPTO=OPENSSL prefix="$FFBUILD_PREFIX" CFLAGS=-I$FFBUILD_PREFIX/include LDFLAGS=-L$FFBUILD_PREFIX/lib XLIBS="-ldl -lm -lz" INC=-I$FFBUILD_PREFIX/include
+            make install
+
     elif [[ $TARGET == linux64 ]]; then
-        myconf+=(
-            make SYS=posix
-            
-        )
+
+            make -j$(nproc) SYS=posix SHARED= SO_INST= CRYPTO=OPENSSL prefix="$FFBUILD_PREFIX" CFLAGS=-I$FFBUILD_PREFIX/include LDFLAGS=-L$FFBUILD_PREFIX/lib XLIBS="-ldl -lm -lz" INC=-I$FFBUILD_PREFIX/include
+            make install
+
     else
         echo "Unknown target"
         return -1
     fi
 
-
-    make -j$(nproc)
-    make install
 }
 
 ffbuild_configure() {
