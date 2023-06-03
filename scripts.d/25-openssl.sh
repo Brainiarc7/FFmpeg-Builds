@@ -1,8 +1,8 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/openssl/openssl.git"
-SCRIPT_COMMIT="OpenSSL_1_1_1t"
-SCRIPT_TAGFILTER="OpenSSL_1_1_1*"
+SCRIPT_COMMIT="openssl-3.0.8"
+SCRIPT_TAGFILTER="openssl-3.0.*"
 
 ffbuild_enabled() {
     return 0
@@ -21,6 +21,7 @@ ffbuild_dockerbuild() {
         enable-ec
         enable-srp
         --prefix="$FFBUILD_PREFIX"
+        --libdir=lib
     )
 
     if [[ $TARGET == win64 ]]; then
@@ -61,7 +62,7 @@ ffbuild_dockerbuild() {
 
     sed -i -e "/^CFLAGS=/s|=.*|=${CFLAGS}|" -e "/^LDFLAGS=/s|=[[:space:]]*$|=${LDFLAGS}|" Makefile
 
-    make -j$(nproc) 
+    make -j$(nproc) build_sw
     make install_sw
 }
 
