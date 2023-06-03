@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_REPO="https://github.com/rise-worlds/rtmpdump.git"
-SCRIPT_COMMIT="d5aeb88331af56c62c2de10e52b3f91e604e359e"
+SCRIPT_REPO="https://git.ffmpeg.org/gitweb/rtmpdump.git"
+SCRIPT_COMMIT="f1b83c10d8beb43fcc70a6e88cf4325499f25857"
 
 ffbuild_enabled() {
     return 0
