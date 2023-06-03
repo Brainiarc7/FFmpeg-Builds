@@ -16,32 +16,29 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         SHARED= SO_INST= CRYPTO=OPENSSL
-        --prefix="$FFBUILD_PREFIX"
+        prefix="$FFBUILD_PREFIX"
+        CFLAGS=-I$FFBUILD_PREFIX/include
+        LDFLAGS=-L$FFBUILD_PREFIX/lib
+        XLIBS="-ldl -lm -lz"
+        INC=-I$FFBUILD_PREFIX/include
+
     )
 
     if [[ $TARGET == win64 ]]; then
         myconf+=(
-            make SYS=mingw64 INC=-I$FFBUILD_PREFIX/include LDFLAGS=-L$FFBUILD_PREFIX/lib
+            make SYS=mingw64
             
         )
     elif [[ $TARGET == win32 ]]; then
         myconf+=(
-            make SYS=mingw INC=-I$FFBUILD_PREFIX/include LDFLAGS=-L$FFBUILD_PREFIX/lib
+            make SYS=mingw
             
         )
     elif [[ $TARGET == linux64 ]]; then
         myconf+=(
-            make SYS=posix INC=-I$FFBUILD_PREFIX/include LDFLAGS=-L$FFBUILD_PREFIX/lib
+            make SYS=posix
             
         )
-    else
-        echo "Unknown target"
-        return -1
-    fi
-
-    if [[ $TARGET == win* || $TARGET == linux* ]]; then
-        export CC="${FFBUILD_CROSS_PREFIX}gcc"
-        export AR="${FFBUILD_CROSS_PREFIX}ar"
     else
         echo "Unknown target"
         return -1
@@ -49,11 +46,10 @@ ffbuild_dockerbuild() {
 
 
     make -j$(nproc)
-    make install prefix=$FFBUILD_PREFIX SHARED= 
+    make install
 }
 
 ffbuild_configure() {
-    [[ $TARGET == win* ]] && return 0
     echo ----enable-librtmp
 }
 
