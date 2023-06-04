@@ -18,6 +18,7 @@ ffbuild_dockerbuild() {
         --enable-pic
         --disable-openssl
         --disable-documentation
+        --enable-mini-gmp
         CXXFLAGS="-I$FFBUILD_PREFIX/include"
         LDFLAGS="-L$FFBUILD_PREFIX/lib"
     )
