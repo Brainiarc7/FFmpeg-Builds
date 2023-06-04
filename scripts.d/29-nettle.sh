@@ -16,11 +16,14 @@ ffbuild_dockerbuild() {
         --disable-shared
         --enable-pic
         --disable-openssl
+        --disable-documentation
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
         myconf+=(
             --host="$FFBUILD_TOOLCHAIN"
+            --enable-x86-aesni=auto
+            --enable-x86-sha-ni=auto
         )
     else
         echo "Unknown target"
