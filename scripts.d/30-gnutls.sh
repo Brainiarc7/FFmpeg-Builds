@@ -12,10 +12,11 @@ ffbuild_dockerbuild() {
     git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" gnutls
     cd gnutls
     git submodule update --init --recursive --depth=1
+    ./bootstrap
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-maintainer-mode
+        --disable-full-test-suite
         --disable-shared
         --enable-static
         --with-pic
@@ -24,6 +25,8 @@ ffbuild_dockerbuild() {
         --without-p11-kit 
         --disable-doc 
         --disable-c
+        --disable-tools
+        -CXXFLAGS="-I$FFBUILD_PREFIX"
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
@@ -35,7 +38,6 @@ ffbuild_dockerbuild() {
         return -1
     fi
    
-    ./bootstrap
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
