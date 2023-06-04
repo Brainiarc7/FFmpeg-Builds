@@ -19,8 +19,6 @@ ffbuild_dockerbuild() {
         --disable-openssl
         --disable-documentation
         --enable-mini-gmp
-        CXXFLAGS="-I$FFBUILD_PREFIX/include"
-        LDFLAGS="-L$FFBUILD_PREFIX/lib"
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
