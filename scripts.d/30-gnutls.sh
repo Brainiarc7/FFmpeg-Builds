@@ -25,7 +25,9 @@ ffbuild_dockerbuild() {
         --disable-doc 
         --disable-c
         --disable-tools
-        CXXFLAGS="-I$FFBUILD_PREFIX"
+        CXXFLAGS="-I$FFBUILD_PREFIX/include"
+        LDFLAGS="-L$FFBUILD_PREFIX/lib"
+
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
