@@ -19,7 +19,7 @@ ffbuild_dockerbuild() {
         --disable-openssl
         --disable-documentation
         CXXFLAGS="-I$FFBUILD_PREFIX/include"
-        LDFLAGS=="-L$FFBUILD_PREFIX/lib"
+        LDFLAGS="-L$FFBUILD_PREFIX/lib"
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
