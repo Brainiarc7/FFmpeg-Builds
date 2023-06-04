@@ -35,7 +35,8 @@ ffbuild_dockerbuild() {
         return -1
     fi
 
-    autoconf
+    autoupdate
+    autoreconf -fvi
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
