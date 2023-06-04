@@ -34,9 +34,8 @@ ffbuild_dockerbuild() {
         echo "Unknown target"
         return -1
     fi
-
-    autoupdate
-    autoreconf -fvi
+   
+    ./bootstrap
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
