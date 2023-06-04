@@ -18,6 +18,7 @@ ffbuild_dockerbuild() {
         --enable-pic
         --disable-openssl
         --disable-documentation
+        CXXFLAGS="-I$FFBUILD_PREFIX"
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
