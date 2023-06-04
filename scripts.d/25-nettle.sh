@@ -15,6 +15,7 @@ ffbuild_dockerbuild() {
         --prefix="$FFBUILD_PREFIX"
         --disable-shared
         --enable-pic
+        --disable-openssl
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
