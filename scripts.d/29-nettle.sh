@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/gnutls/nettle.git"
-SCRIPT_COMMIT="775d6adb77a885616ef3a9fcbc4c087cad129f3d"
+SCRIPT_COMMIT="nettle_3.8.1_release_20220727"
+SCRIPT_TAGFILTER="nettle_3.8.1_*"
 
 ffbuild_enabled() {
     return 0
