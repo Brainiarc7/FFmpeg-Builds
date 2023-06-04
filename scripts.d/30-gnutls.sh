@@ -1,8 +1,7 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/gnutls/gnutls.git"
-SCRIPT_COMMIT="gnutls_3_7_x"
-SCRIPT_TAGFILTER="gnutls_3_7_*"
+SCRIPT_COMMIT="0a8115000f2353dcabcfdc0caccbb0f2c3d6f512"
 
 ffbuild_enabled() {
     return 0
