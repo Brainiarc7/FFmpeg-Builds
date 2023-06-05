@@ -37,7 +37,5 @@ ffbuild_dockerbuild() {
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
-    
-    gen-implib "$FFBUILD_PREFIX"/lib/{libgmp.so.*,libgmp*.a}
 
 }
