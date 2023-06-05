@@ -22,7 +22,6 @@ ffbuild_dockerbuild() {
         --with-included-unistring 
         --without-p11-kit 
         --disable-doc 
-        --disable-c
         --disable-tools
         --with-nettle-mini
     )
