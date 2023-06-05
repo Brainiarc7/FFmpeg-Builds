@@ -25,7 +25,8 @@ ffbuild_dockerbuild() {
         --enable-year2038
         --with-pic
         --with-included-libtasn1 
-        --with-included-unistring 
+        --with-included-unistring
+        --with-nettle-mini
         --without-p11-kit 
         --disable-doc 
         --disable-tools
