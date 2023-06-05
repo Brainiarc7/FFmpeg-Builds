@@ -14,17 +14,18 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-static
+        --enable-shared
         --enable-pic
         --disable-openssl
         --disable-documentation
-        --enable-mini-gmp
+        --with-include-path="$FFBUILD_PREFIX/include/gmp"
     )
     
     if [[ $TARGET != *arm64 ]]; then
         myconf+=(
             --enable-x86-aesni=auto
             --enable-x86-sha-ni=auto
+            --enable-x86-pclmul=auto
         )
     fi
 
