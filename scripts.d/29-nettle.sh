@@ -14,11 +14,13 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-shared
+        --enable-static
+        --disable-shared
         --enable-pic
         --disable-openssl
         --disable-documentation
         --with-include-path="$FFBUILD_PREFIX/include/gmp"
+        --with-lib-path="$FFBUILD_PREFIX/lib/gmp"
     )
     
     if [[ $TARGET != *arm64 ]]; then
