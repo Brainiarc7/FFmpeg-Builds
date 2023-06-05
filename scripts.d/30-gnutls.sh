@@ -15,12 +15,15 @@ ffbuild_dockerbuild() {
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
         --disable-full-test-suite
+        --enable-static 
+        --disable-shared
         --with-pic
         --with-included-libtasn1 
         --with-included-unistring 
         --without-p11-kit 
         --disable-doc 
         --disable-tools
+        --disable-c
         CPPFLAGS=-I$FFBUILD_PREFIX/include
     )
 
@@ -32,7 +35,10 @@ ffbuild_dockerbuild() {
         echo "Unknown target"
         return -1
     fi
-   
+
+    export CFLAGS="$RAW_CFLAGS"
+    export LDFLAFS="$RAW_LDFLAGS"
+
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
