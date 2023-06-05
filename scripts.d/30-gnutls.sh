@@ -15,15 +15,13 @@ ffbuild_dockerbuild() {
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
         --disable-full-test-suite
-        --disable-shared
-        --enable-static
         --with-pic
         --with-included-libtasn1 
         --with-included-unistring 
         --without-p11-kit 
         --disable-doc 
         --disable-tools
-        CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp
+        CPPFLAGS=-I$FFBUILD_PREFIX/include
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
