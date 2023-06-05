@@ -19,6 +19,7 @@ ffbuild_dockerbuild() {
         --disable-openssl
         --disable-documentation
         --with-include-path="$FFBUILD_PREFIX/include/gmp"
+        CPPFLAGS="-I$FFBUILD_PREFIX/include/gmp"
     )
     
     if [[ $TARGET != *arm64 ]]; then
