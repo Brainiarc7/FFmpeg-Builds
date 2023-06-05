@@ -33,16 +33,11 @@ ffbuild_dockerbuild() {
 
     export CFLAGS="$RAW_CFLAGS"
     export LDFLAFS="$RAW_LDFLAGS"
-
+    
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
-}
+    
+    gen-implib "$FFBUILD_PREFIX"/lib/{libgmp.so.*,libgmp*.a}
 
-ffbuild_configure() {
-    echo --enable-gmp
-}
-
-ffbuild_unconfigure() {
-    echo --disable-gmp
 }
