@@ -14,7 +14,8 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --disable-static
+        --enable-static
+        --enable-shared
         --enable-pic
         --disable-openssl
         --disable-documentation
@@ -30,8 +31,16 @@ ffbuild_dockerbuild() {
         )
     fi
 
+
+    export CFLAGS="$RAW_CFLAGS"
+    export LDFLAFS="$RAW_LDFLAGS"
+
  
    ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
+    
+    gen-implib "$FFBUILD_PREFIX"/lib/{libhogweed.so,libhogweed.a}
+    gen-implib "$FFBUILD_PREFIX"/lib/{libnettle.so,libnettle.a}
+
 }
