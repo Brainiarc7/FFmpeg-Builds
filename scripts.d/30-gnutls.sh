@@ -23,7 +23,6 @@ ffbuild_dockerbuild() {
         --without-p11-kit 
         --disable-doc 
         --disable-tools
-        --with-libnettle-prefix="$FFBUILD_PREFIX"
         CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp
     )
 
