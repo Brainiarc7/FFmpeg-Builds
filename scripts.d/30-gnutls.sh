@@ -24,6 +24,7 @@ ffbuild_dockerbuild() {
         --disable-doc 
         --disable-c
         --disable-tools
+        --with-nettle-mini
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
