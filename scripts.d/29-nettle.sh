@@ -39,8 +39,4 @@ ffbuild_dockerbuild() {
    ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
-    
-    gen-implib "$FFBUILD_PREFIX"/lib/{libhogweed.so,libhogweed.a}
-    gen-implib "$FFBUILD_PREFIX"/lib/{libnettle.so,libnettle.a}
-
 }
