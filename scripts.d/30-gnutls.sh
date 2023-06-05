@@ -16,6 +16,12 @@ ffbuild_dockerbuild() {
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
         --disable-full-test-suite
+        --disable-tests
+        --disable-valgrind-tests
+        --disable-maintainer-mode
+        --disable-dependency-tracking
+        --disable-silent-rules
+        --enable-heartbeat-support
         --enable-static 
         --disable-shared
         --with-pic
