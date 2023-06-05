@@ -19,6 +19,7 @@ ffbuild_dockerbuild() {
         --enable-pic
         --disable-openssl
         --disable-documentation
+        --enable-mini-gmp
         --with-include-path="$FFBUILD_PREFIX/include/gmp"
         --with-lib-path="$FFBUILD_PREFIX/lib/gmp"
     )
