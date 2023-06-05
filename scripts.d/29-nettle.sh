@@ -10,6 +10,7 @@ ffbuild_enabled() {
 ffbuild_dockerbuild() {
     git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" nettle
     cd nettle
+    git submodule update --init --recursive --depth=1
     ./.bootstrap
 
     local myconf=(
