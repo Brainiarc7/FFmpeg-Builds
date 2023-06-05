@@ -11,7 +11,7 @@ ffbuild_dockerbuild() {
     git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" gnutls
     cd gnutls
     git submodule update --init --recursive --depth=1
-    ./bootstrap
+    ./bootstrap --no-bootstrap-sync --copy --gnulib-srcdir=gnulib
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
@@ -22,16 +22,17 @@ ffbuild_dockerbuild() {
         --disable-dependency-tracking
         --disable-silent-rules
         --enable-heartbeat-support
-        --enable-static 
-        --disable-shared
+        --enable-year2038
         --with-pic
         --with-included-libtasn1 
         --with-included-unistring 
         --without-p11-kit 
         --disable-doc 
         --disable-tools
-        CPPFLAGS=-I$FFBUILD_PREFIX/include
-        LDFLAGS=-L$FFBUILD_PREFIX/lib
+        --disable-cxx
+        --disable-gcc-warnings
+        CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp
+        LDFLAGS=-L$FFBUILD_PREFIX/lib/gmp
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
