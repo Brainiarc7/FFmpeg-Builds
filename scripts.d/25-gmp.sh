@@ -15,9 +15,7 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-maintainer-mode
-        --disable-shared
-        --enable-static
+        --enable-shared
         --with-pic
     )
 
@@ -33,12 +31,4 @@ ffbuild_dockerbuild() {
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
-}
-
-ffbuild_configure() {
-    echo --enable-gmp
-}
-
-ffbuild_unconfigure() {
-    echo --disable-gmp
 }
