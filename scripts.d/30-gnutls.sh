@@ -29,7 +29,6 @@ ffbuild_dockerbuild() {
         --without-p11-kit 
         --disable-doc 
         --disable-tools
-        --disable-cxx
         --disable-gcc-warnings
         CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp
         LDFLAGS=-L$FFBUILD_PREFIX/lib/gmp
