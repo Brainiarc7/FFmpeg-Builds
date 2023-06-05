@@ -30,6 +30,10 @@ ffbuild_dockerbuild() {
         return -1
     fi
 
+
+    export CFLAGS="$RAW_CFLAGS"
+    export LDFLAFS="$RAW_LDFLAGS"
+
     ./configure "${myconf[@]}"
     make -j$(nproc)
     make install
