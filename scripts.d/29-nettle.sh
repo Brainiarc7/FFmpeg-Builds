@@ -21,12 +21,18 @@ ffbuild_dockerbuild() {
         --disable-documentation
         --enable-mini-gmp
     )
+    
+    if [[ $TARGET != *arm64 ]]; then
+        myconf+=(
+            --enable-x86-aesni=auto
+            --enable-x86-sha-ni=auto
+        )
+    fi
+
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
         myconf+=(
             --host="$FFBUILD_TOOLCHAIN"
-            --enable-x86-aesni=auto
-            --enable-x86-sha-ni=auto
         )
     else
         echo "Unknown target"
