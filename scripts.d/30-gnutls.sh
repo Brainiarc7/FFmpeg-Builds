@@ -15,10 +15,7 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --disable-full-test-suite
         --disable-tests
-        --disable-valgrind-tests
-        --disable-maintainer-mode
         --disable-dependency-tracking
         --disable-silent-rules
         --enable-heartbeat-support
@@ -26,13 +23,11 @@ ffbuild_dockerbuild() {
         --with-pic
         --with-included-libtasn1 
         --with-included-unistring
-        --with-nettle-mini
         --without-p11-kit 
         --disable-doc 
         --disable-tools
         --disable-gcc-warnings
-        CPPFLAGS=-I$FFBUILD_PREFIX/include
-        LDFLAGS=-L$FFBUILD_PREFIX/lib
+        CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp:-I$FFBUILD_PREFIX/include
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
@@ -44,10 +39,17 @@ ffbuild_dockerbuild() {
         return -1
     fi
 
-    export CFLAGS="$RAW_CFLAGS"
-    export LDFLAFS="$RAW_LDFLAGS"
+    export CFLAGS="$CFLAGS -fno-strict-aliasing"
+    export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+
+    # GnuTLS build system prepends the cross prefix itself
+    export CC="${CC/${FFBUILD_CROSS_PREFIX}/}"
+    export CXX="${CXX/${FFBUILD_CROSS_PREFIX}/}"
+    export AR="${AR/${FFBUILD_CROSS_PREFIX}/}"
+    export RANLIB="${RANLIB/${FFBUILD_CROSS_PREFIX}/}"
 
     ./configure "${myconf[@]}"
+    sed -i -e "/^CFLAGS=/s|=.*|=${CFLAGS}|" -e "/^LDFLAGS=/s|=[[:space:]]*$|=${LDFLAGS}|" Makefile
     make -j$(nproc)
     make install
 }
