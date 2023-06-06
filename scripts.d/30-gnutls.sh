@@ -27,7 +27,7 @@ ffbuild_dockerbuild() {
         --disable-doc 
         --disable-tools
         --disable-gcc-warnings
-        CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp:-I$FFBUILD_PREFIX/include
+        CPPFLAGS=-I$FFBUILD_PREFIX/include/gmp
     )
 
     if [[ $TARGET == win* || $TARGET == linux* ]]; then
