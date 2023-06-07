@@ -14,12 +14,14 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-static
-        --enable-shared
         --enable-pic
-        --disable-openssl
-        --disable-documentation
-        --with-include-path="$FFBUILD_PREFIX/include/gmp"
+        --disable-shared 
+        --enable-static 
+        --disable-openssl 
+        --disable-documentation 
+        --libdir="$FFBUILD_PREFIX/lib" 
+        CPPFLAGS="$FFBUILD_PREFIX/include" 
+        LDFLAGS="$FFBUILD_PREFIX/lib" 
     )
     
     if [[ $TARGET != *arm64 ]]; then
@@ -29,11 +31,6 @@ ffbuild_dockerbuild() {
             --enable-x86-pclmul=auto
         )
     fi
-
-
-    export CFLAGS="$RAW_CFLAGS"
-    export LDFLAFS="$RAW_LDFLAGS"
-
  
    ./configure "${myconf[@]}"
     make -j$(nproc)
