@@ -14,7 +14,6 @@ ffbuild_dockerbuild() {
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-pic
         --disable-shared 
         --enable-static 
         --disable-openssl 
