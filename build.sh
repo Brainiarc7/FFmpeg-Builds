@@ -75,6 +75,11 @@ cat <<EOF >"$BUILD_SCRIPT"
         git apply --reject --whitespace=fix --ignore-space-change --ignore-whitespace "\$patch"
     done
 
+    for file in '/patches/libavdevice/* ; do
+    echo "Copying \$file"
+    cp "\$file" libavdevice/
+    done
+ 
     ./configure --prefix=/ffbuild/prefix --pkg-config-flags="--static" \$FFBUILD_TARGET_FLAGS $FF_CONFIGURE \
         --extra-cflags='$FF_CFLAGS' --extra-cxxflags='$FF_CXXFLAGS' \
         --extra-ldflags='$FF_LDFLAGS' --extra-ldexeflags='$FF_LDEXEFLAGS' --extra-libs='$FF_LIBS' \
