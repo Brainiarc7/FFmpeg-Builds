@@ -52,8 +52,8 @@ mkdir ffbuild
 
 FFMPEG_REPO="${FFMPEG_REPO:-https://github.com/kierank/ffmpeg-obe.git}"
 FFMPEG_REPO="${FFMPEG_REPO_OVERRIDE:-$FFMPEG_REPO}"
-GIT_BRANCH="${GIT_BRANCH:new3}"
-GIT_BRANCH="${GIT_BRANCH_OVERRIDE:-$GIT_BRANCH}"
+GIT_BRANCH="${GIT_BRANCH:-new3}"
+GIT_BRANCH="${GIT_BRANCH_OVERRIDE:-new3}"
 
 BUILD_SCRIPT="$(mktemp)"
 trap "rm -f -- '$BUILD_SCRIPT'" EXIT
