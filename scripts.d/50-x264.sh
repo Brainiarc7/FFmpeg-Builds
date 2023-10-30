@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/kierank/x264-obe.git"
-SCRIPT_COMMIT="8627d8113ad80ab4d9289a34fa9075a399ed212f"
+SCRIPT_COMMIT="4398dea27948583513ff44f4482b8a64d8a3f27c"
 
 ffbuild_enabled() {
     [[ $VARIANT == lgpl* ]] && return -1
