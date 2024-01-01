@@ -1,15 +1,13 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/harfbuzz/harfbuzz.git"
-SCRIPT_COMMIT="156de3c048237c5953d96ed5e7bdb53261456692"
+SCRIPT_COMMIT="f3efa6f6e54740214739ba8b00e777111e781882"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    cd "$FFBUILD_DLDIR/$SELF"
-
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
         --disable-shared

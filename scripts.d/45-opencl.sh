@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/KhronosGroup/OpenCL-Headers.git"
-SCRIPT_COMMIT="9ce9a722ba06ea87487cd08bd2001276e2aef8cd"
+SCRIPT_COMMIT="2368105c0531069fe927989505de7d125ec58c55"
 
 SCRIPT_REPO2="https://github.com/KhronosGroup/OpenCL-ICD-Loader.git"
 SCRIPT_COMMIT2="229410f86a8c8c9e0f86f195409e5481a2bae067"
@@ -11,13 +11,11 @@ ffbuild_enabled() {
 }
 
 ffbuild_dockerdl() {
-    default_dl opencl/headers
-    to_df "RUN git-mini-clone \"$SCRIPT_REPO2\" \"$SCRIPT_COMMIT2\" opencl/loader"
+    default_dl headers
+    echo "git-mini-clone \"$SCRIPT_REPO2\" \"$SCRIPT_COMMIT2\" loader"
 }
 
 ffbuild_dockerbuild() {
-    cd "$FFBUILD_DLDIR"/opencl
-
     mkdir -p "$FFBUILD_PREFIX"/include/CL
     cp -r headers/CL/* "$FFBUILD_PREFIX"/include/CL/.
 
