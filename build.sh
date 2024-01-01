@@ -61,11 +61,20 @@ trap "rm -f -- '$BUILD_SCRIPT'" EXIT
 
 cat <<EOF >"$BUILD_SCRIPT"
     set -xe
+    shopt -s nullglob
     cd /ffbuild
     rm -rf ffmpeg prefix
 
     git clone --filter=blob:none --branch='$GIT_BRANCH' '$FFMPEG_REPO' ffmpeg
     cd ffmpeg
+
+    git config user.email "builder@localhost"
+    git config user.name "Builder"
+
+    for patch in '/patches/$GIT_BRANCH'/*.patch; do
+        echo "Applying \$patch"
+        git apply "\$patch"
+    done
 
     ./configure --prefix=/ffbuild/prefix --pkg-config-flags="--static" \$FFBUILD_TARGET_FLAGS $FF_CONFIGURE \
         --extra-cflags='$FF_CFLAGS' --extra-cxxflags='$FF_CXXFLAGS' \
