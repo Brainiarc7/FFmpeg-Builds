@@ -43,11 +43,3 @@ ffbuild_dockerbuild() {
     make -j$(nproc)
     make install
 }
-
-ffbuild_configure() {
-    echo --enable-libaribb24
-}
-
-ffbuild_unconfigure() {
-    echo --disable-libaribb24
-}
