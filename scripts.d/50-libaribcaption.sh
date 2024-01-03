@@ -27,10 +27,6 @@ ffbuild_dockerbuild() {
     echo "Libs.private: -lstdc++" >> "$FFBUILD_PREFIX"/lib/pkgconfig/libaribcaption.pc
 }
 
-ffbuild_configure() {
-    echo --enable-libaribcaption
-}
-
 ffbuild_unconfigure() {
     [[ $ADDINS_STR == *4.4* ]] && return 0
     [[ $ADDINS_STR == *5.0* ]] && return 0
