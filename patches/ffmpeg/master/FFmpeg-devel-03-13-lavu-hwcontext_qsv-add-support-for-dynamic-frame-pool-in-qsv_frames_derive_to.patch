@@ -1,0 +1,207 @@
+From patchwork Wed Sep  6 06:00:42 2023
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: "Xiang, Haihao" <haihao.xiang-at-intel.com@ffmpeg.org>
+X-Patchwork-Id: 43580
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a05:6a20:4f16:b0:149:dfde:5c0a with SMTP id
+ gi22csp2310664pzb;
+        Tue, 5 Sep 2023 23:01:47 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AGHT+IEs251dtuCjHXG5nKVrOjEw518peuKVA0l0Q1dTmMqhaUXFn7L1ytgXNPm8eqz01ww3YmB+
+X-Received: by 2002:aa7:ce1a:0:b0:52c:9ce1:f117 with SMTP id
+ d26-20020aa7ce1a000000b0052c9ce1f117mr1127849edv.40.1693980106915;
+        Tue, 05 Sep 2023 23:01:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1693980106; cv=none;
+        d=google.com; s=arc-20160816;
+        b=S9LVpPhnJmHNdPFL8t6cwtqX0ZNu4rfwDg6P5IRQKTkqgqSBW55IA3MaHUDMDyoRZw
+         tSxGUtp588iyJd075+ueZIk7+3tAwqrviBwppqwiEXZV96wFjyDGx64x4ZNPnI6FV06o
+         Ed0mLG2Y38I4m/fkRcfYqmajRDXaUjSXEnhLq8A98WLbYIWfOZmN9+ovcDGu7u7HUQk3
+         ocZ3fXvPzWxXGOHoOijI665RTDvs17d6OWvyQpxP5b8SB3XkwbxX6oRe/NZgpN+O2kfL
+         yGtKJ3ISiicIk2SoR7xJmpmfaTsUI09l/MXLNwKW8q/yMGAKuQGzsNpnzU+S7XC0mjHt
+         MdRg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:cc:reply-to
+         :list-subscribe:list-help:list-post:list-archive:list-unsubscribe
+         :list-id:precedence:subject:mime-version:references:in-reply-to
+         :message-id:date:to:from:dkim-signature:delivered-to;
+        bh=rseUR/QpbTyMNh+ns4xPiKwK3EpV4513VsIfnpnmcxk=;
+        fh=1kpmTRI1sW42eNCnNMby7VLIISQBX6KJuVYxOEG0t2A=;
+        b=yyIfB5qe+d73pSc4yuBAPTjkQ2S+shwVwKhAsYj/nRAOZB9C9zzr6KDi4PVU9gsKn4
+         dqABD5TgpKO0g3rmZjsEme2w6SIDtDaU8Y2aCF30i0OJO0W+ucu1qbR8vNu8lHJNPD9N
+         8VAZObvK2ERxzHe8h6oLj02cNUAVcTKdGpp9/4/x0ukedsQ0Wu7STN9DJp8QJtmf6I7c
+         5MKDVTedN2J7C3I+E1xZZwqIu9vRo77BEaV/H8gyIKuQKWi5T9KjgughloJ2s86bx1O5
+         Bv0LGp3d9+/G6oc/fB3IHu1NdnZ97tEYQ8BGlDHtWwATOf59/q4IWqGADs1S+9Sjz+Re
+         FRhg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@intel.com
+ header.s=Intel header.b=iRs6a+0g;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ i7-20020a056402054700b005222c07f612si8788875edx.496.2023.09.05.23.01.46;
+        Tue, 05 Sep 2023 23:01:46 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@intel.com
+ header.s=Intel header.b=iRs6a+0g;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 8827368C766;
+	Wed,  6 Sep 2023 09:01:24 +0300 (EEST)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 37DF168C770
+ for <ffmpeg-devel@ffmpeg.org>; Wed,  6 Sep 2023 09:01:15 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1693980080; x=1725516080;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version:content-transfer-encoding;
+ bh=sgVx5EKe+b1dfggITLVn+U2nthNpP+WrZ7ok3TtQA1E=;
+ b=iRs6a+0gD+e+rLz9PitAE85Ga1Hsdz0lci0/Y7OHVXHMBwRJfmXwdu0h
+ ebShJdZWW0s8i0qVhymiQFJYQp91QPinVSJ2JPT37OGUoLz4L3U+xc67P
+ GP149Sse43wmVI0rHwGYdHdVJ46mY0AI8Ifap0URshfZTPj9QUFHejhV7
+ r9Mjx5kwqvdrSo+xAGxAJaPeJDvThpg5vV7LVhVyMJFS9h+5878YDPn1N
+ QdJS08Z02KYk/u6BL6u2wQVAtQPw53X306s76s/7SN7RYczG1ZLgRs8qG
+ EA7mxlOYupANv4JOl2w2gDipzXpHzpnNtR9nP34L2B0jg00CQu89eqqBB A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10824"; a="374372408"
+X-IronPort-AV: E=Sophos;i="6.02,231,1688454000"; d="scan'208";a="374372408"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 05 Sep 2023 23:01:11 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10824"; a="734919017"
+X-IronPort-AV: E=Sophos;i="6.02,231,1688454000"; d="scan'208";a="734919017"
+Received: from xhh-dg264.sh.intel.com ([10.238.2.76])
+ by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 05 Sep 2023 23:01:10 -0700
+From: "Xiang, Haihao" <haihao.xiang-at-intel.com@ffmpeg.org>
+To: ffmpeg-devel@ffmpeg.org
+Date: Wed,  6 Sep 2023 14:00:42 +0800
+Message-Id: <20230906060052.698620-3-haihao.xiang@intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230906060052.698620-1-haihao.xiang@intel.com>
+References: <20230906060052.698620-1-haihao.xiang@intel.com>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH 03/13] lavu/hwcontext_qsv: add support for
+ dynamic frame pool in qsv_frames_derive_to
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Cc: Haihao Xiang <haihao.xiang@intel.com>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: tPsOggit+NrV
+
+From: Haihao Xiang <haihao.xiang@intel.com>
+
+Allow the source is a dynamic frame pool
+
+Signed-off-by: Haihao Xiang <haihao.xiang@intel.com>
+---
+ libavutil/hwcontext_qsv.c | 61 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 54 insertions(+), 7 deletions(-)
+
+diff --git a/libavutil/hwcontext_qsv.c b/libavutil/hwcontext_qsv.c
+index 21ce4225bd..ceb5087b6b 100644
+--- a/libavutil/hwcontext_qsv.c
++++ b/libavutil/hwcontext_qsv.c
+@@ -1938,18 +1938,52 @@ static int qsv_transfer_data_to(AVHWFramesContext *ctx, AVFrame *dst,
+     return 0;
+ }
+ 
+-static int qsv_frames_derive_to(AVHWFramesContext *dst_ctx,
+-                                AVHWFramesContext *src_ctx, int flags)
++static int qsv_dynamic_frames_derive_to(AVHWFramesContext *dst_ctx,
++                                        AVHWFramesContext *src_ctx, int flags)
+ {
+     QSVFramesContext *s = dst_ctx->internal->priv;
+     AVQSVFramesContext *dst_hwctx = dst_ctx->hwctx;
+-    int i;
++    mfxFrameSurface1 mfx_surf1;
+ 
+-    if (src_ctx->initial_pool_size == 0) {
+-        av_log(dst_ctx, AV_LOG_ERROR, "Only fixed-size pools can be "
+-            "mapped to QSV frames.\n");
+-        return AVERROR(EINVAL);
++    switch (src_ctx->device_ctx->type) {
++#if CONFIG_VAAPI
++    case AV_HWDEVICE_TYPE_VAAPI:
++        dst_hwctx->frame_type  = MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET;
++        break;
++#endif
++
++#if CONFIG_D3D11VA
++    case AV_HWDEVICE_TYPE_D3D11VA:
++    {
++        AVD3D11VAFramesContext *src_hwctx = src_ctx->hwctx;
++
++        if (src_hwctx->BindFlags & D3D11_BIND_RENDER_TARGET) {
++            dst_hwctx->frame_type |= MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET;
++        } else {
++            dst_hwctx->frame_type |= MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET;
++        }
+     }
++    break;
++#endif
++
++    default:
++        return AVERROR(ENOSYS);
++    }
++
++    memset(&mfx_surf1, 0, sizeof(mfx_surf1));
++    qsv_init_surface(dst_ctx, &mfx_surf1);
++    s->frame_info = mfx_surf1.Info;
++    dst_hwctx->info = &s->frame_info;
++    dst_hwctx->nb_surfaces = 0;
++    return 0;
++}
++
++static int qsv_fixed_frames_derive_to(AVHWFramesContext *dst_ctx,
++                                      AVHWFramesContext *src_ctx, int flags)
++{
++    QSVFramesContext *s = dst_ctx->internal->priv;
++    AVQSVFramesContext *dst_hwctx = dst_ctx->hwctx;
++    int i;
+ 
+     switch (src_ctx->device_ctx->type) {
+ #if CONFIG_VAAPI
+@@ -2041,6 +2075,19 @@ static int qsv_frames_derive_to(AVHWFramesContext *dst_ctx,
+     return 0;
+ }
+ 
++static int qsv_frames_derive_to(AVHWFramesContext *dst_ctx,
++                                AVHWFramesContext *src_ctx, int flags)
++{
++    if (src_ctx->initial_pool_size < 0) {
++        av_log(dst_ctx, AV_LOG_ERROR, "Invalid src frame pool. \n");
++        return AVERROR(EINVAL);
++    } else if (src_ctx->initial_pool_size == 0) {
++        return qsv_dynamic_frames_derive_to(dst_ctx, src_ctx, flags);
++    } else {
++        return qsv_fixed_frames_derive_to(dst_ctx, src_ctx, flags);
++    }
++}
++
+ static int qsv_map_to(AVHWFramesContext *dst_ctx,
+                       AVFrame *dst, const AVFrame *src, int flags)
+ {
