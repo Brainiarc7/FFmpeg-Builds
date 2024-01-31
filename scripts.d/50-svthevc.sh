@@ -13,7 +13,7 @@ ffbuild_dockerdl() {
 }
 
 ffbuild_dockerbuild() {
-    cd SVT-HEVC/Build/linux
+    cd Build/linux
 
     ./build.sh static release install prefix="$FFBUILD_PREFIX" -- -DCMAKE_TOOLCHAIN_FILE="$FFBUILD_CMAKE_TOOLCHAIN"
 
