@@ -4,10 +4,9 @@ SCRIPT_REPO="https://github.com/OpenVisualCloud/SVT-HEVC.git"
 SCRIPT_COMMIT="78bcaa7bdefa0dd593149517ce41842d528d596f"
 
 ffbuild_enabled() {
-    [[ $TARGET == win* ]] && return -1
+    [[ $TARGET == linux* ]] || return 1
     return 0
 }
-
 
 ffbuild_dockerdl() {
     echo "git clone \"$SCRIPT_REPO\" . && git checkout \"$SCRIPT_COMMIT\""
