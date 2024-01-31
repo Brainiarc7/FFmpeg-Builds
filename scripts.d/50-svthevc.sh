@@ -4,7 +4,7 @@ SCRIPT_REPO="https://github.com/OpenVisualCloud/SVT-HEVC.git"
 SCRIPT_COMMIT="78bcaa7bdefa0dd593149517ce41842d528d596f"
 
 ffbuild_enabled() {
-    [[ $TARGET == win*]] && return -1
+    [[ $TARGET == win* ]] && return -1
     return 0
 }
 
