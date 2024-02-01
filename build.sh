@@ -71,7 +71,7 @@ cat <<EOF >"$BUILD_SCRIPT"
     git config user.email "builder@localhost"
     git config user.name "Builder"
 
-    for patch in '/patches/$GIT_BRANCH'/*.patch; do
+    for patch in '/patches/ffmpeg/$GIT_BRANCH'/*.patch; do
         echo "Applying \$patch"
         git apply "\$patch"
     done
