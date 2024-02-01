@@ -1,6 +1,6 @@
 #!/bin/bash
 set -xe
-shopt -s globstar
+#shopt -s globstar
 cd "$(dirname "$0")"
 source util/vars.sh
 
